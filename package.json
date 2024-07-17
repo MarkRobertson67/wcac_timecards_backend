@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js",
+    "db:setup": "source .env && psql $DB_URL -f db/schema.sql && psql $DB_URL -f db/seed.sql"
   },
   "keywords": [],
   "author": "",

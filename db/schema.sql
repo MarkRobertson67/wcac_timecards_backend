@@ -3,7 +3,7 @@
 -- See LICENSE.txt file for details.
 
 --  Drop tables if they exist
-DROP TABLE IF EXISTS times_worked;
+DROP TABLE IF EXISTS timecards;
 DROP TABLE IF EXISTS employees;
 
 -- Create employees table
@@ -17,7 +17,7 @@ CREATE TABLE employees (
 );
 
 -- Create times_worked table
-CREATE TABLE times_worked (
+CREATE TABLE timecards (
     id SERIAL PRIMARY KEY,
     employee_id INT REFERENCES employees(id) ON DELETE CASCADE,
     work_date DATE NOT NULL,
@@ -30,5 +30,5 @@ CREATE TABLE times_worked (
 );
 
 -- Create indexes to speed up the database access
-CREATE INDEX idx_employee_id ON times_worked(employee_id);
-CREATE INDEX idx_work_date ON times_worked(work_date);
+CREATE INDEX idx_employee_id ON timecards(employee_id);
+CREATE INDEX idx_work_date ON timecards(work_date);

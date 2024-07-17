@@ -13,6 +13,13 @@ app.use(cors());
 app.use(express.json());
 
 //Controllers
+const employeesController = require("./controllers/EmployeeController");
+const timecardsController = require("./controllers/TimecardController");
+
+// ROUTES
+// Example routes using controllers
+app.use("/employees", employeesController);
+app.use("/timecards", timecardsController);
 
 
 // HEALTH CHECK ROUTE

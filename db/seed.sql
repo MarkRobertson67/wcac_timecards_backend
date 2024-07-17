@@ -2,15 +2,15 @@
 -- Copyright (c) 2024 Mark Robertson
 -- See LICENSE.txt file for details.
 
- Insert employees
+--  Insert employees
 INSERT INTO employees (first_name, last_name, email, phone, position) VALUES
 ('John', 'Doe', 'john.doe@example.com', '732-555-1234', 'Bus Driver'),
 ('Jane', 'Smith', 'jane.smith@example.com', '732-555-5678', 'Nurse'),
 ('Bob', 'Johnson', 'bob.johnson@example.com', '908-555-9101', 'Entertainment Director');
 
--- Insert times worked
+-- Insert timecards
 -- John Doe (Bus Driver)
-INSERT INTO times_worked (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
+INSERT INTO timecards (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
 (1, '2024-07-15', '07:15', '10:45', '14:15', '17:00', '07:15'),
 (1, '2024-07-16', '07:17', '10:43', '14:13', '17:02', '07:15'),
 (1, '2024-07-17', '07:14', '10:46', '14:16', '17:01', '07:17'),
@@ -38,7 +38,7 @@ INSERT INTO times_worked (employee_id, work_date, start_time, lunch_start, lunch
 (1, '2024-08-16', '07:15', '10:45', '14:15', '17:00', '07:15');
 
 -- Jane Smith (Nurse)
-INSERT INTO times_worked (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
+INSERT INTO timecards (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
 (2, '2024-07-15', '08:30', '12:00', '12:30', '15:30', '06:30'),
 (2, '2024-07-16', '08:32', '12:02', '12:32', '15:31', '06:29'),
 (2, '2024-07-17', '08:29', '12:01', '12:31', '15:33', '06:33'),
@@ -66,7 +66,7 @@ INSERT INTO times_worked (employee_id, work_date, start_time, lunch_start, lunch
 (2, '2024-08-16', '08:33', '12:02', '12:32', '15:30', '06:27');
 
 -- Bob Johnson (Entertainment Director)
-INSERT INTO times_worked (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
+INSERT INTO timecards (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time) VALUES
 (3, '2024-07-15', '09:00', '12:00', '12:30', '18:00', '08:00'),
 (3, '2024-07-16', '09:02', '12:02', '12:32', '18:01', '07:59'),
 (3, '2024-07-17', '09:01', '12:01', '12:31', '18:03', '08:01'),
