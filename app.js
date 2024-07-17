@@ -15,11 +15,14 @@ app.use(express.json());
 //Controllers
 const employeesController = require("./controllers/EmployeeController");
 const timecardsController = require("./controllers/TimecardController");
+const reportsController = require("./controllers/ReportController");
+
 
 // ROUTES
 // Example routes using controllers
 app.use("/employees", employeesController);
 app.use("/timecards", timecardsController);
+app.use("/reports", reportsController);
 
 
 // HEALTH CHECK ROUTE

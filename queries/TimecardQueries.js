@@ -35,6 +35,20 @@ const createTimecard = async (employee_id, work_date, start_time, lunch_start, l
     }
 };
 
+
+// Delete a timecard by ID
+const deleteTimecard = async (id) => {
+    try {
+        const deletedTimecard = await db.one(
+            "DELETE FROM timecards WHERE id = $1 RETURNING *",
+            [id]
+        );
+        return deletedTimecard;
+    } catch (error) {
+        throw new Error(`Error deleting timecard with ID ${id}: ${error.message}`);
+    }
+};
+
 // Get all timecards for a specific employee
 const getTimecardsByEmployeeId = async (employeeId) => {
     try {
@@ -49,5 +63,6 @@ module.exports = {
     getAllTimecards,
     getTimecardById,
     createTimecard,
+    deleteTimecard,
     getTimecardsByEmployeeId,
 };
