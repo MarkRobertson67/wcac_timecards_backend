@@ -18,6 +18,25 @@ const { validateDateRangeMiddleware } = require("../middleware");
   const reportsController = Router();
 
 
+// // Get a simple static report
+// reportsController.get('/', async (req, res) => {
+//   try {
+//     // Static data for testing
+//     const reportData = {
+//       message: 'Reports endpoint is working',
+//       data: [
+//         { employeeId: 1, totalHours: 40 },
+//         { employeeId: 2, totalHours: 35 }
+//       ]
+//     };
+//     res.status(200).json(reportData);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
 // Get total hours report by date range
 reportsController.get(
     "/",
@@ -34,6 +53,22 @@ reportsController.get(
     }
   );
 
+  reportsController.get(
+    "/:employeeId",
+    validateDateRangeMiddleware,
+    async (request, response) => {
+      const { employeeId } = request.params;
+      const { startDate, endDate } = request.query;
+      console.log('Received:', { employeeId, startDate, endDate });
+      try {
+        const reportData = await getTotalHoursWorkedByEmployee(employeeId, startDate, endDate);
+        response.status(200).json(reportData);
+      } catch (error) {
+        response.status(500).json({ error: error.message });
+      }
+    }
+  );
+  
 
   // Get detailed timecards for an employee within a date range
 reportsController.get(

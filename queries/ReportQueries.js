@@ -6,7 +6,7 @@ const db = require("../db/dbConfig");
 
 
 // Get total hours worked by employee within a date range
-const getTotalHoursWorkedByEmployee = async (startDate, endDate) => {
+const getTotalHoursWorkedByEmployee = async (employee_id, startDate, endDate) => {
     try {
         const query = `
             SELECT 
@@ -19,13 +19,11 @@ const getTotalHoursWorkedByEmployee = async (startDate, endDate) => {
                 ) AS total_hours
             FROM employees e
             JOIN timecards t ON e.id = t.employee_id
-            WHERE t.work_date BETWEEN $1 AND $2
+            WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
             GROUP BY e.id, e.first_name, e.last_name
             ORDER BY e.id
         `;
-        const result = await db.any(query, [startDate, endDate]);
-
-        // console.log(result); // Log the raw result
+        const result = await db.any(query, [employee_id, startDate, endDate]);
 
         return result.map(employee => {
             const totalHours = parseFloat(employee.total_hours);
@@ -53,6 +51,7 @@ const getTotalHoursWorkedByEmployee = async (startDate, endDate) => {
         throw new Error(`Error retrieving total hours worked: ${error.message}`);
     }
 };
+
 
 
 // Get detailed timecard entries for an employee within a date range
