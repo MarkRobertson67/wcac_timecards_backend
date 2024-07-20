@@ -93,85 +93,58 @@ const getDetailedTimecardsByEmployee = async (employeeId, startDate, endDate) =>
     }
 };
 
-// Get absenteeism report for employees within a date range
-const getAbsenteeismReport = async (startDate, endDate) => {
-    try {
-        const query = `
-            SELECT 
-                e.id AS employee_id, 
-                e.first_name, 
-                e.last_name,
-                COUNT(*) AS days_absent
-            FROM employees e
-            LEFT JOIN timecards t ON e.id = t.employee_id AND t.work_date BETWEEN $1 AND $2
-            WHERE t.id IS NULL
-            GROUP BY e.id, e.first_name, e.last_name
-            ORDER BY e.id
-        `;
-        const result = await db.any(query, [startDate, endDate]);
 
-        return result.map(employee => ({
+// Get monthly summary report for all employees
+const getMonthlySummaryReport = async (startDate, endDate) => {
+    try {
+      const query = `
+        SELECT 
+          e.id AS employee_id,
+          e.first_name,
+          e.last_name,
+          SUM(
+            EXTRACT(EPOCH FROM t.end_time - t.start_time) / 3600
+            - EXTRACT(EPOCH FROM t.lunch_end - t.lunch_start) / 3600
+          ) AS total_hours
+        FROM employees e
+        JOIN timecards t ON e.id = t.employee_id
+        WHERE t.work_date >= $1 AND t.work_date <= $2
+        GROUP BY e.id, e.first_name, e.last_name
+        ORDER BY e.id
+      `;
+      const result = await db.any(query, [startDate, endDate]);
+  
+      return result.map(employee => {
+        const totalHours = parseFloat(employee.total_hours);
+        if (isNaN(totalHours)) {
+          console.error(`Invalid total_hours value for employee ${employee.employee_id}: ${employee.total_hours}`);
+          return {
             employee_id: employee.employee_id,
             first_name: employee.first_name,
             last_name: employee.last_name,
-            days_absent: employee.days_absent
-        }));
+            total_hours: "Invalid data"
+          };
+        }
+  
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+  
+        return {
+          employee_id: employee.employee_id,
+          first_name: employee.first_name,
+          last_name: employee.last_name,
+          total_hours: `${hours} hours ${minutes} minutes`
+        };
+      });
     } catch (error) {
-        throw new Error(`Error retrieving absenteeism report: ${error.message}`);
+      throw new Error(`Error retrieving monthly summary report: ${error.message}`);
     }
-};
+  };
 
-
-// Get monthly summary report for all employees
-const getMonthlySummaryReport = async (month, year) => {
-    try {
-        const query = `
-            SELECT 
-                e.id AS employee_id,
-                e.first_name,
-                e.last_name,
-                SUM(
-                    EXTRACT(EPOCH FROM t.end_time - t.start_time) / 3600
-                    - EXTRACT(EPOCH FROM t.lunch_end - t.lunch_start) / 3600
-                ) AS total_hours
-            FROM employees e
-            JOIN timecards t ON e.id = t.employee_id
-            WHERE EXTRACT(MONTH FROM t.work_date) = $1 AND EXTRACT(YEAR FROM t.work_date) = $2
-            GROUP BY e.id, e.first_name, e.last_name
-            ORDER BY e.id
-        `;
-        const result = await db.any(query, [month, year]);
-
-        return result.map(employee => {
-            const totalHours = parseFloat(employee.total_hours);
-            if (isNaN(totalHours)) {
-                console.error(`Invalid total_hours value for employee ${employee.employee_id}: ${employee.total_hours}`);
-                return {
-                    employee_id: employee.employee_id,
-                    first_name: employee.first_name,
-                    last_name: employee.last_name,
-                    total_hours: "Invalid data"
-                };
-            }
-
-            const hours = Math.floor(totalHours);
-            const minutes = Math.round((totalHours - hours) * 60);
-
-            return {
-                employee_id: employee.employee_id,
-                first_name: employee.first_name,
-                last_name: employee.last_name,
-                total_hours: `${hours} hours ${minutes} minutes`
-            };
-        });
-    } catch (error) {
-        throw new Error(`Error retrieving monthly summary report: ${error.message}`);
-    }
-};
 
 
 // Get employee summary report for different time periods
-const getEmployeeSummaryReport = async (employeeId, period) => {
+const getEmployeeSummaryReport = async (employeeId, period, startDate, endDate) => {
     try {
         let query;
         let params;
@@ -189,11 +162,11 @@ const getEmployeeSummaryReport = async (employeeId, period) => {
                     ) AS total_hours
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                WHERE e.id = $1
+                WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, week
                 ORDER BY week
             `;
-            params = [employeeId];
+            params = [employeeId, startDate, endDate];
         } else if (period === 'monthly') {
             query = `
                 SELECT 
@@ -207,11 +180,11 @@ const getEmployeeSummaryReport = async (employeeId, period) => {
                     ) AS total_hours
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                WHERE e.id = $1
+                WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, month
                 ORDER BY month
             `;
-            params = [employeeId];
+            params = [employeeId, startDate, endDate];
         } else if (period === 'yearly') {
             query = `
                 SELECT 
@@ -225,11 +198,11 @@ const getEmployeeSummaryReport = async (employeeId, period) => {
                     ) AS total_hours
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                WHERE e.id = $1
+                WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, year
                 ORDER BY year
             `;
-            params = [employeeId];
+            params = [employeeId, startDate, endDate];
         } else {
             throw new Error('Invalid period specified. Valid options are "weekly", "monthly", "yearly".');
         }
@@ -252,12 +225,12 @@ const getEmployeeSummaryReport = async (employeeId, period) => {
     } catch (error) {
         throw new Error(`Error retrieving employee summary report: ${error.message}`);
     }
+
 };
 
 module.exports = {
     getTotalHoursWorkedByEmployee,
     getDetailedTimecardsByEmployee,
-    getAbsenteeismReport,
     getMonthlySummaryReport,
     getEmployeeSummaryReport
 };

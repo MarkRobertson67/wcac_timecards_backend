@@ -7,7 +7,6 @@ const { Router } = require("express");
 const { 
   getTotalHoursWorkedByEmployee, 
   getDetailedTimecardsByEmployee, 
-  getAbsenteeismReport, 
   getMonthlySummaryReport, 
   getEmployeeSummaryReport 
 } = require("../queries/ReportQueries");
@@ -16,25 +15,6 @@ const {
 const { validateDateRangeMiddleware } = require("../middleware");
   
   const reportsController = Router();
-
-
-// // Get a simple static report
-// reportsController.get('/', async (req, res) => {
-//   try {
-//     // Static data for testing
-//     const reportData = {
-//       message: 'Reports endpoint is working',
-//       data: [
-//         { employeeId: 1, totalHours: 40 },
-//         { employeeId: 2, totalHours: 35 }
-//       ]
-//     };
-//     res.status(200).json(reportData);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
 
 
 // Get total hours report by date range
@@ -87,49 +67,40 @@ reportsController.get(
 );
 
 
-// Get absenteeism report within a date range
-reportsController.get(
-  "/absenteeism",
-  validateDateRangeMiddleware,
-  async (request, response) => {
-      const { startDate, endDate } = request.query;
-      try {
-          const reportData = await getAbsenteeismReport(startDate, endDate);
-          response.status(200).json(reportData);
-      } catch (error) {
-          response.status(500).json({ error: error.message });
-      }
-  }
-);
-
-
 // Get monthly summary report
 reportsController.get(
   "/monthly-summary",
   async (request, response) => {
-      const { month, year } = request.query;
-      try {
-          const reportData = await getMonthlySummaryReport(month, year);
-          response.status(200).json(reportData);
-      } catch (error) {
-          response.status(500).json({ error: error.message });
-      }
+    const { startDate, endDate } = request.query;
+
+    // Ensure startDate and endDate are valid date strings
+    if (!startDate || !endDate) {
+      return response.status(400).json({ error: 'Missing startDate or endDate' });
+    }
+
+    try {
+      const reportData = await getMonthlySummaryReport(startDate, endDate);
+      response.status(200).json(reportData);
+    } catch (error) {
+      console.error('Error in getMonthlySummaryReport:', error); // Log detailed error for debugging
+      response.status(500).json({ error: error.message });
+    }
   }
 );
 
 
-// Get employee summary report by period
 reportsController.get(
   "/employee-summary",
   async (request, response) => {
-      const { employeeId, period } = request.query;
+      const { employeeId, period, startDate, endDate } = request.query;
       try {
-          const reportData = await getEmployeeSummaryReport(employeeId, period);
+          const reportData = await getEmployeeSummaryReport(employeeId, period, startDate, endDate);
           response.status(200).json(reportData);
       } catch (error) {
           response.status(500).json({ error: error.message });
       }
   }
 );
+
 
 module.exports = reportsController;
