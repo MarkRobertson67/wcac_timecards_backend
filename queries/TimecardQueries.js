@@ -30,20 +30,45 @@ const getTimecardById = async (id) => {
     }
 };
 
-// Create a new timecard
-const createTimecard = async (employee_id, work_date) => {
+// // Create a new timecard
+// const createTimecard = async (employee_id, work_date) => {
+//     try {
+//         const newTimecard = await db.one(
+//             "INSERT INTO timecards (employee_id, work_date) VALUES ($1, $2) RETURNING *",
+//             [employee_id, work_date]
+//         );
+//         console.log(`Successfully created new timecard for employee ${employee_id} on ${work_date}`);
+//         return newTimecard;
+//     } catch (error) {
+//         console.error(`Error creating new timecard: ${error.message}`);  // Log the error message
+//         throw new Error(`Error creating new timecard: ${error.message}`);
+//     }
+// };
+
+// Create a new timecard with potential partial data
+const createTimecard = async (employee_id, work_date, data) => {
     try {
+        const keys = ['start_time', 'lunch_start', 'lunch_end', 'end_time', 'total_time'];
+        const fields = keys.filter(key => key in data);
+        const values = fields.map(field => data[field]);
+        
+        const fieldsSQL = fields.join(', ');
+        const valuesPlaceholders = fields.map((_, index) => `$${index + 3}`).join(', ');
+
         const newTimecard = await db.one(
-            "INSERT INTO timecards (employee_id, work_date) VALUES ($1, $2) RETURNING *",
-            [employee_id, work_date]
+            `INSERT INTO timecards (employee_id, work_date, ${fieldsSQL})
+             VALUES ($1, $2, ${valuesPlaceholders}) RETURNING *`,
+            [employee_id, work_date, ...values]
         );
+
         console.log(`Successfully created new timecard for employee ${employee_id} on ${work_date}`);
         return newTimecard;
     } catch (error) {
-        console.error(`Error creating new timecard: ${error.message}`);  // Log the error message
+        console.error(`Error creating new timecard: ${error.message}`);
         throw new Error(`Error creating new timecard: ${error.message}`);
     }
 };
+
 
 const updateTimecard = async (id, fieldsToUpdate) => {
     try {

@@ -41,6 +41,14 @@ const validateTimecardExistsMiddleware = async (request, response, next) => {
   next();
 };
 
+const validateTimecardEditableMiddleware = async (request, response, next) => {
+  const { timecard } = request;
+  if (timecard.status === 'submitted' || timecard.status === 'locked') {
+    return response.status(403).json({ error: "This timecard has been locked and cannot be modified." });
+  }
+  next();
+};
+
 const validateDateRangeMiddleware = (request, response, next) => {
   const { startDate, endDate } = request.query;
   
@@ -56,6 +64,7 @@ const validateDateRangeMiddleware = (request, response, next) => {
 
 const isValidDate = (dateString) => {
   // Simple date validation example; adjust based on your date format requirements
+  console.log(dateString)
   return !isNaN(Date.parse(dateString));
 };
 
@@ -64,5 +73,6 @@ module.exports = {
   validateIdMiddleware,
   validateEmployeeExistsMiddleware,
   validateTimecardExistsMiddleware,
+  validateTimecardEditableMiddleware,
   validateDateRangeMiddleware,
 };

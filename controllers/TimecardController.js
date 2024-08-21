@@ -58,7 +58,7 @@ timecardsController.post("/", async (request, response) => {
       });
     }
 
-    const newTimecard = await createTimecard(employee_id, work_date);
+    const newTimecard = await createTimecard(employee_id, work_date, request.body);
 
     // Log success message
     console.log(`Successfully created timecard for employee ${employee_id} on ${work_date}`);

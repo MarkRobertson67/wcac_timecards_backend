@@ -59,6 +59,7 @@ reportsController.get(
       const { startDate, endDate } = request.query;
       try {
           const reportData = await getDetailedTimecardsByEmployee(employeeId, startDate, endDate);
+          console.log(startDate, endDate)
           response.status(200).json(reportData);
       } catch (error) {
           response.status(500).json({ error: error.message });
