@@ -27,7 +27,7 @@ timecardsController.get("/", async (request, response) => {
     const timecards = await getAllTimecards();
     response.status(200).json({ data: timecards });
   } catch (err) {
-    console.error(`Error in POST /timecards: ${err.message}`);
+    console.error(`Error in GET /timecards: ${err.message}`);
     response.status(500).json({ error: "Internal server error while getting all Timecards. Please contact support." });
   }
 });
@@ -43,7 +43,7 @@ timecardsController.get(
       const timecard = await getTimecardById(id);
       response.status(200).json({ data: timecard });
     } catch (err) {
-      console.error(`Error in POST /timecards: ${err.message}`);
+      console.error(`Error in GET /timecards: ${err.message}`);
       response.status(500).json({ error: "Internal server error while getting Timecard by ID. Please contact support." });
     }
   }
@@ -100,7 +100,7 @@ timecardsController.put(
       console.log(`Successfully updated timecard with ID ${id}`);
       response.status(200).json({ data: updatedTimecard });
     } catch (err) {
-      console.log(`Error Updating Timecard: { err.message }`)
+      console.log(`Error Updating Timecard: ${ err.message }`)
       response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
@@ -121,7 +121,7 @@ timecardsController.delete(
 
       response.status(200).json({ message: `Timecard ${deletedTimecard.id} deleted successfully`, data: deletedTimecard });
     } catch (err) {
-      console.log(`Error Deleting Timecard: { err.message }`)
+      console.log(`Error Deleting Timecard: ${ err.message }`)
       response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
@@ -136,17 +136,17 @@ timecardsController.get(
       const timecards = await getTimecardsByEmployeeId(employeeId);
       response.status(200).json({ data: timecards });
     } catch (err) {
-      console.log(`Error geting all timecards for ${employeeId}: { err.message }`)
+      console.log(`Error getting all timecards for ${employeeId}: ${ err.message }`)
       response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
 );
 
 // GET a timecard for a specific employee on a specific date
-timecardsController.get("/employee/:employeeId/date/:date", async (request, response) => {
-  const { employeeId, date } = request.params;
+timecardsController.get('/employee/:employeeId/range/:startDate/:endDate', async (request, response) => {
+  const { employeeId, startDate, endDate } = req.params;
   try {
-      const timecard = await getTimecardByEmployeeAndDate(employeeId, date);
+      const timecard = await getTimecardByEmployeeAndDate(employeeId, startDate, endDate);
       if (timecard) {
           response.status(200).json({ data: timecard });
       } else {
@@ -157,6 +157,7 @@ timecardsController.get("/employee/:employeeId/date/:date", async (request, resp
       response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
   }
 });
+
 
 module.exports = timecardsController;
 
