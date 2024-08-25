@@ -17,7 +17,22 @@ const {
   validateEmployeeExistsMiddleware
 } = require("../middleware");
 
+const { isEmail, normalizeEmail } = require('validator');
+
 const employeesController = Router();
+
+// Validate and normalize email
+const validateAndNormalizeEmail = (request, response, next) => {
+  let { email } = request.body;
+  if (email) {
+    if (!isEmail(email)) {
+      return response.status(400).json({ error: "Invalid email format." });
+    }
+    // Normalize the email if it's valid
+    request.body.email = normalizeEmail(email, { all_lowercase: true });
+  }
+  next();
+};
 
 // GET all employees
 employeesController.get("/", async (request, response) => {
@@ -46,7 +61,7 @@ employeesController.get(
 );
 
 // POST create new employee
-employeesController.post("/", async (request, response) => {
+employeesController.post("/", validateAndNormalizeEmail, async (request, response) => {
   try {
     const { first_name, last_name, email, phone, position } = request.body;
     const newEmployee = await createEmployee(first_name, last_name, email, phone, position);
@@ -61,6 +76,7 @@ employeesController.put(
   "/:id",
   validateIdMiddleware,
   validateEmployeeExistsMiddleware,
+  validateAndNormalizeEmail,
   async (request, response) => {
     try {
       const { id } = request.params;

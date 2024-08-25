@@ -10,6 +10,7 @@ const {
     updateTimecard,
     deleteTimecard,
     getTimecardsByEmployeeId,
+    getTimecardByEmployeeAndDate,
 } = require("../queries/TimecardQueries");
 
 // Import middleware functions
@@ -26,7 +27,8 @@ timecardsController.get("/", async (request, response) => {
     const timecards = await getAllTimecards();
     response.status(200).json({ data: timecards });
   } catch (err) {
-    response.status(500).json({ error: err.message });
+    console.error(`Error in POST /timecards: ${err.message}`);
+    response.status(500).json({ error: "Internal server error while getting all Timecards. Please contact support." });
   }
 });
 
@@ -41,7 +43,8 @@ timecardsController.get(
       const timecard = await getTimecardById(id);
       response.status(200).json({ data: timecard });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      console.error(`Error in POST /timecards: ${err.message}`);
+      response.status(500).json({ error: "Internal server error while getting Timecard by ID. Please contact support." });
     }
   }
 );
@@ -66,7 +69,7 @@ timecardsController.post("/", async (request, response) => {
     response.status(201).json({ data: newTimecard });
   } catch (err) {
     console.error(`Error in POST /timecards: ${err.message}`);
-    response.status(500).json({ error: err.message });
+    response.status(500).json({ error: "Internal server error while Creating New Timecard. Please contact support." });
   }
 });
 
@@ -80,7 +83,7 @@ timecardsController.put(
       const { id } = request.params;
       const { start_time, lunch_start, lunch_end, end_time, total_time } = request.body;
 
-      // Only include fields that are present in the request body
+      // Validate fields to ensure they exist before attempting to update
       const fieldsToUpdate = {};
       if (start_time !== undefined) fieldsToUpdate.start_time = start_time;
       if (lunch_start !== undefined) fieldsToUpdate.lunch_start = lunch_start;
@@ -89,17 +92,16 @@ timecardsController.put(
       if (total_time !== undefined) fieldsToUpdate.total_time = total_time;
 
       if (Object.keys(fieldsToUpdate).length === 0) {
-        return response.status(400).json({ error: 'No fields to update' });
+        console.log("No valid fields provided for update");
+        return response.status(400).json({ error: 'No valid fields provided for update' });
       }
 
       const updatedTimecard = await updateTimecard(id, fieldsToUpdate);
-
-      // Log success message
       console.log(`Successfully updated timecard with ID ${id}`);
-
       response.status(200).json({ data: updatedTimecard });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      console.log(`Error Updating Timecard: { err.message }`)
+      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
 );
@@ -119,7 +121,8 @@ timecardsController.delete(
 
       response.status(200).json({ message: `Timecard ${deletedTimecard.id} deleted successfully`, data: deletedTimecard });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      console.log(`Error Deleting Timecard: { err.message }`)
+      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
 );
@@ -133,10 +136,27 @@ timecardsController.get(
       const timecards = await getTimecardsByEmployeeId(employeeId);
       response.status(200).json({ data: timecards });
     } catch (err) {
-      response.status(500).json({ error: err.message });
+      console.log(`Error geting all timecards for ${employeeId}: { err.message }`)
+      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
     }
   }
 );
+
+// GET a timecard for a specific employee on a specific date
+timecardsController.get("/employee/:employeeId/date/:date", async (request, response) => {
+  const { employeeId, date } = request.params;
+  try {
+      const timecard = await getTimecardByEmployeeAndDate(employeeId, date);
+      if (timecard) {
+          response.status(200).json({ data: timecard });
+      } else {
+          response.status(404).json({ error: "Timecard not found" });
+      }
+  } catch (err) {
+      console.error(`Error fetching timecard for employee ID ${employeeId} on ${date}: ${err.message}`);
+      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
+  }
+});
 
 module.exports = timecardsController;
 

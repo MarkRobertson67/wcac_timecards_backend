@@ -11,7 +11,8 @@ const getAllTimecards = async () => {
         console.log("Successfully retrieved all timecards");
         return timecards;
     } catch (error) {
-        throw new Error(`Error retrieving all timecards: ${error.message}`);
+        console.log(`Error retrieving all timecards: ${error.message}`)
+        throw new Error(`Error retrieving all timecards. Please contact support.`);
     }
 };
 
@@ -26,7 +27,8 @@ const getTimecardById = async (id) => {
         }
         return timecard;
     } catch (error) {
-        throw new Error(`Error retrieving timecard with ID ${id}: ${error.message}`);
+            console.log(`Error retrieving timecard with ID ${id}: ${error.message}`)
+        throw new Error(`Error retrieving timecard with ID ${id}. Please contact support.`);
     }
 };
 
@@ -65,11 +67,11 @@ const createTimecard = async (employee_id, work_date, data) => {
         return newTimecard;
     } catch (error) {
         console.error(`Error creating new timecard: ${error.message}`);
-        throw new Error(`Error creating new timecard: ${error.message}`);
+        throw new Error(`Error creating new timecard. Please contact support.`);
     }
 };
 
-
+//Updating TimeCard
 const updateTimecard = async (id, fieldsToUpdate) => {
     try {
         const setClause = Object.keys(fieldsToUpdate)
@@ -83,8 +85,8 @@ const updateTimecard = async (id, fieldsToUpdate) => {
         console.log(`Successfully updated timecard with ID ${id}`);
         return updatedTimecard;
     } catch (error) {
-        console.error(`Error updating timecard with ID ${id}: ${error.message}`); // Log the error message
-        throw new Error(`Error updating timecard with ID ${id}: ${error.message}`);
+        console.error(`Error updating timecard with ID ${id} during status update: ${error.message}`); // Log the error message
+        throw new Error(`Error updating timecard with ID ${id}. Please contact support.`);
     }
 };
 
@@ -99,7 +101,8 @@ const deleteTimecard = async (id) => {
         console.log(`Successfully deleted timecard with ID ${id}`);
         return deletedTimecard;
     } catch (error) {
-        throw new Error(`Error deleting timecard with ID ${id}: ${error.message}`);
+        console.log(`Error deleting timecard with ID ${id}: ${error.message}`)
+        throw new Error(`Error deleting timecard with ID ${id}. Please contact support.`);
     }
 };
 
@@ -110,7 +113,30 @@ const getTimecardsByEmployeeId = async (employeeId) => {
         //console.log(`Successfully retrieved timecards for employee with ID ${employeeId}`);
         return timecards;
     } catch (error) {
-        throw new Error(`Error fetching timecards for employee with ID ${employeeId}: ${error.message}`);
+        console.log(`Error fetching timecards for employee with ID ${employeeId}: ${error.message}`)
+        throw new Error(`Error fetching timecards for employee with ID ${employeeId}. Please contact support.`);
+    }
+};
+
+// Get a timecard for a specific employee on a specific date
+const getTimecardByEmployeeAndDate = async (employeeId, workDate) => {
+    try {
+        const query = `
+            SELECT * 
+            FROM timecards 
+            WHERE employee_id = $1 AND work_date = $2
+        `;
+        const timecard = await db.oneOrNone(query, [employeeId, workDate]);
+        if (timecard) {
+            console.log(`Successfully retrieved timecard for employee ID ${employeeId} on ${workDate}`);
+            return timecard;
+        } else {
+            console.log(`No timecard found for employee ID ${employeeId} on ${workDate}`);
+            return null; // Return null if no timecard is found
+        }
+    } catch (error) {
+        console.error(`Error retrieving timecard for employee ID ${employeeId} on ${workDate}: ${error.message}`);
+        throw new Error(`Error retrieving timecard for employee ID ${employeeId} on ${workDate}. Please contact support.`);
     }
 };
 
@@ -121,5 +147,6 @@ module.exports = {
     updateTimecard,
     deleteTimecard,
     getTimecardsByEmployeeId,
+    getTimecardByEmployeeAndDate,
 };
 
