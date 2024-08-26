@@ -10,7 +10,7 @@ const {
     updateTimecard,
     deleteTimecard,
     getTimecardsByEmployeeId,
-    getTimecardByEmployeeAndDate,
+    getTimecardsByEmployeeAndDateRange,
 } = require("../queries/TimecardQueries");
 
 // Import middleware functions
@@ -142,18 +142,18 @@ timecardsController.get(
   }
 );
 
-// GET a timecard for a specific employee on a specific date
+// GET a timecard for a specific employee for a specific date range
 timecardsController.get('/employee/:employeeId/range/:startDate/:endDate', async (request, response) => {
-  const { employeeId, startDate, endDate } = req.params;
+  const { employeeId, startDate, endDate } = request.params;
   try {
-      const timecard = await getTimecardByEmployeeAndDate(employeeId, startDate, endDate);
+      const timecard = await getTimecardsByEmployeeAndDateRange(employeeId, startDate, endDate);
       if (timecard) {
           response.status(200).json({ data: timecard });
       } else {
           response.status(404).json({ error: "Timecard not found" });
       }
   } catch (err) {
-      console.error(`Error fetching timecard for employee ID ${employeeId} on ${date}: ${err.message}`);
+      console.error(`Error fetching timecard for employee ID ${employeeId} between ${startDate} and ${endDate}: ${err.message}`);
       response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
   }
 });

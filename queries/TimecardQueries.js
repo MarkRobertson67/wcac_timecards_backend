@@ -118,27 +118,29 @@ const getTimecardsByEmployeeId = async (employeeId) => {
     }
 };
 
-// Get a timecard for a specific employee on a specific date
-const getTimecardByEmployeeAndDate = async (employeeId, workDate) => {
+// Get timecards for a specific employee between start and end dates
+const getTimecardsByEmployeeAndDateRange = async (employeeId, startDate, endDate) => {
     try {
         const query = `
             SELECT * 
             FROM timecards 
-            WHERE employee_id = $1 AND work_date = $2
+            WHERE employee_id = $1 AND work_date BETWEEN $2 AND $3
+            ORDER BY work_date ASC;
         `;
-        const timecard = await db.oneOrNone(query, [employeeId, workDate]);
-        if (timecard) {
-            console.log(`Successfully retrieved timecard for employee ID ${employeeId} on ${workDate}`);
-            return timecard;
+        const timecards = await db.any(query, [employeeId, startDate, endDate]);
+        if (timecards.length > 0) {
+            console.log(`Successfully retrieved ${timecards.length} timecards for employee ID ${employeeId} between ${startDate} and ${endDate}`);
+            return timecards;
         } else {
-            console.log(`No timecard found for employee ID ${employeeId} on ${workDate}`);
-            return null; // Return null if no timecard is found
+            console.log(`No timecards found for employee ID ${employeeId} between ${startDate} and ${endDate}`);
+            return []; // Return an empty array if no timecards are found
         }
     } catch (error) {
-        console.error(`Error retrieving timecard for employee ID ${employeeId} on ${workDate}: ${error.message}`);
-        throw new Error(`Error retrieving timecard for employee ID ${employeeId} on ${workDate}. Please contact support.`);
+        console.error(`Error retrieving timecards for employee ID ${employeeId} between ${startDate} and ${endDate}: ${error.message}`);
+        throw new Error(`Error retrieving timecards for employee ID ${employeeId} between ${startDate} and ${endDate}. Please contact support.`);
     }
 };
+
 
 module.exports = {
     getAllTimecards,
@@ -147,6 +149,6 @@ module.exports = {
     updateTimecard,
     deleteTimecard,
     getTimecardsByEmployeeId,
-    getTimecardByEmployeeAndDate,
+    getTimecardsByEmployeeAndDateRange,
 };
 
