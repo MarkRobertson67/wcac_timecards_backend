@@ -63,6 +63,8 @@ const validateTimecardEditableMiddleware = async (request, response, next) => {
 const validateDateRangeMiddleware = (request, response, next) => {
   const { startDate, endDate } = request.query;
   
+  console.log(`Received Start Date: ${startDate}, End Date: ${endDate}`);
+  
   // Check if both startDate and endDate are provided and valid dates
   if (!startDate || !endDate || !isValidDate(startDate) || !isValidDate(endDate)) {
     return response
@@ -80,6 +82,7 @@ const validateDateRangeMiddleware = (request, response, next) => {
   next();
 };
 
+
 //Validate Date Format
 const validateDateMiddleware = (request, response, next) => {
   const { date } = request.params;
@@ -89,19 +92,13 @@ const validateDateMiddleware = (request, response, next) => {
   next();
 };
 
-// Validate ISO String and Date exists, i.e leap years etc.
+
 const isValidDate = (dateString) => {
-  console.log(dateString);
-  if (isISO8601(dateString)) {  // Check if it's a valid ISO 8601 string
-    const date = new Date(dateString);
-    let [year, month, day] = dateString.split('-');
-    month = month - 1;  // JavaScript months are 0-indexed
-    if (date.getFullYear() == year && date.getMonth() == month && date.getDate() == parseInt(day)) {
-      return true;  // It's a valid date
-    }
-  }
-  return false;  // If not a valid date or format
+  // Simple date validation example; adjust based on your date format requirements
+  console.log(dateString)
+  return !isNaN(Date.parse(dateString));
 };
+
 
 // Validate Email Format
 const validateEmployeeEmail = (email) => {

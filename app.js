@@ -5,6 +5,8 @@
 // DEPENDENCIES
 const express = require("express");
 const cors = require("cors");
+const morgan = require('morgan');
+
 
 
 // CONFIGURATION
@@ -13,6 +15,8 @@ const app = express();
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
+
 
 //Controllers
 const employeesController = require("./controllers/EmployeeController");

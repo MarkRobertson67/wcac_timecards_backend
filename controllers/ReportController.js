@@ -20,7 +20,7 @@ const { validateDateRangeMiddleware } = require("../middleware");
 // Get total hours report by date range
 reportsController.get(
     "/",
-    // validateIdMiddleware, // Validate ID middleware (already imported)
+    //validateIdMiddleware, // Validate ID middleware (already imported)
     validateDateRangeMiddleware, // New date range validation middleware
     async (request, response) => {
       const { startDate, endDate } = request.query;
