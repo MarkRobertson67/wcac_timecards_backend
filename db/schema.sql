@@ -26,8 +26,9 @@ CREATE TABLE timecards (
     lunch_end TIME,
     end_time TIME,
     total_time INTERVAL,
-    status VARCHAR(20) DEFAULT 'active', -- New column to store the status of the timecard ('active', 'submitted', 'locked')
+    status VARCHAR(20) DEFAULT 'active' -- New column to store the status of the timecard ('active', 'submitted')
 );
+
 
 -- Create indexes to speed up the database access
 CREATE INDEX idx_employee_id ON timecards(employee_id);
