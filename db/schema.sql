@@ -27,7 +27,6 @@ CREATE TABLE timecards (
     end_time TIME,
     total_time INTERVAL,
     status VARCHAR(20) DEFAULT 'active', -- New column to store the status of the timecard ('active', 'submitted', 'locked')
-    CONSTRAINT unique_employee_date UNIQUE (employee_id, work_date) -- Ensures no duplicate times for the same day
 );
 
 -- Create indexes to speed up the database access
