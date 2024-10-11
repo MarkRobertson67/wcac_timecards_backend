@@ -4,6 +4,7 @@
 
 const db = require("../db/dbConfig");
 
+
 // Get all timecards
 const getAllTimecards = async () => {
     try {
@@ -15,6 +16,7 @@ const getAllTimecards = async () => {
         throw new Error(`Error retrieving all timecards. Please contact support.`);
     }
 };
+
 
 // Get timecard by ID
 const getTimecardById = async (id) => {
@@ -31,37 +33,36 @@ const getTimecardById = async (id) => {
         throw new Error(`Error retrieving timecard with ID ${id}. Please contact support.`);
     }
 };
-
-// // Create a new timecard
-// const createTimecard = async (employee_id, work_date) => {
-//     try {
-//         const newTimecard = await db.one(
-//             "INSERT INTO timecards (employee_id, work_date) VALUES ($1, $2) RETURNING *",
-//             [employee_id, work_date]
-//         );
-//         console.log(`Successfully created new timecard for employee ${employee_id} on ${work_date}`);
-//         return newTimecard;
-//     } catch (error) {
-//         console.error(`Error creating new timecard: ${error.message}`);  // Log the error message
-//         throw new Error(`Error creating new timecard: ${error.message}`);
-//     }
-// };
-
-// Create a new timecard with potential partial data
+  
+  
 const createTimecard = async (employee_id, work_date, data) => {
     try {
-        const keys = ['start_time', 'lunch_start', 'lunch_end', 'end_time', 'total_time'];
-        const fields = keys.filter(key => key in data);
-        const values = fields.map(field => data[field]);
+        const keys = ['start_time', 'lunch_start', 'lunch_end', 'end_time', 'total_time', 'status'];
         
-        const fieldsSQL = fields.join(', ');
-        const valuesPlaceholders = fields.map((_, index) => `$${index + 3}`).join(', ');
+        // Filter out null, undefined, or empty string values
+        const fields = keys.filter(key => data[key] !== undefined && data[key] !== null && data[key] !== "");
+        const values = fields.map(field => data[field]);
 
-        const newTimecard = await db.one(
-            `INSERT INTO timecards (employee_id, work_date, ${fieldsSQL})
-             VALUES ($1, $2, ${valuesPlaceholders}) RETURNING *`,
-            [employee_id, work_date, ...values]
-        );
+        if (fields.length === 0) {
+            throw new Error('No valid fields provided for timecard creation');
+        }
+
+        // If 'status' is not provided, default it to 'active'
+        if (!fields.includes('status')) {
+            fields.push('status');
+            values.push('active');
+        }
+
+        // Build the query dynamically
+        const fieldsSQL = fields.join(', ');
+        const valuesPlaceholders = fields.map((_, index) => `$${index + 3}`).join(', '); // $1 and $2 are reserved for employee_id and work_date
+
+        const query = `
+            INSERT INTO timecards (employee_id, work_date, ${fieldsSQL})
+            VALUES ($1, $2, ${valuesPlaceholders}) RETURNING *;
+        `;
+        
+        const newTimecard = await db.one(query, [employee_id, work_date, ...values]);
 
         console.log(`Successfully created new timecard for employee ${employee_id} on ${work_date}`);
         return newTimecard;
@@ -71,21 +72,33 @@ const createTimecard = async (employee_id, work_date, data) => {
     }
 };
 
-//Updating TimeCard
+
 const updateTimecard = async (id, fieldsToUpdate) => {
     try {
-        const setClause = Object.keys(fieldsToUpdate)
-            .map((field, index) => `${field} = $${index + 2}`)
-            .join(", ");
-        const values = [id, ...Object.values(fieldsToUpdate)];
-        
-        const query = `UPDATE timecards SET ${setClause} WHERE id = $1 RETURNING *`;
+        // Filter out undefined, null, or empty string fields from the update
+        const validFields = Object.keys(fieldsToUpdate).filter(
+            (field) => fieldsToUpdate[field] !== undefined && fieldsToUpdate[field] !== null && fieldsToUpdate[field] !== ""
+        );
+
+        if (validFields.length === 0) {
+            throw new Error('No valid fields provided for update');
+        }
+
+        // Construct the SET clause dynamically
+        const setClause = validFields.map((field, index) => `${field} = $${index + 2}`).join(", ");
+        const values = [id, ...validFields.map(field => fieldsToUpdate[field])];
+
+        const query = `
+            UPDATE timecards
+            SET ${setClause}
+            WHERE id = $1 RETURNING *;
+        `;
 
         const updatedTimecard = await db.one(query, values);
         console.log(`Successfully updated timecard with ID ${id}`);
         return updatedTimecard;
     } catch (error) {
-        console.error(`Error updating timecard with ID ${id} during status update: ${error.message}`); // Log the error message
+        console.error(`Error updating timecard with ID ${id}: ${error.message}`);
         throw new Error(`Error updating timecard with ID ${id}. Please contact support.`);
     }
 };
@@ -106,6 +119,7 @@ const deleteTimecard = async (id) => {
     }
 };
 
+
 // Get all timecards for a specific employee
 const getTimecardsByEmployeeId = async (employeeId) => {
     try {
@@ -117,6 +131,7 @@ const getTimecardsByEmployeeId = async (employeeId) => {
         throw new Error(`Error fetching timecards for employee with ID ${employeeId}. Please contact support.`);
     }
 };
+
 
 // Get timecards for a specific employee between start and end dates
 const getTimecardsByEmployeeAndDateRange = async (employeeId, startDate, endDate) => {
@@ -151,4 +166,3 @@ module.exports = {
     getTimecardsByEmployeeId,
     getTimecardsByEmployeeAndDateRange,
 };
-

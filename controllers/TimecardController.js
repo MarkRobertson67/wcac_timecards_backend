@@ -49,10 +49,12 @@ timecardsController.get(
   }
 );
 
+
 // Create new timecard
 timecardsController.post("/", async (request, response) => {
   try {
-    const { employee_id, work_date } = request.body;
+    console.log("Request body:", request.body);
+    const { employee_id, work_date, status } = request.body;
 
     if (!employee_id || !work_date) {
       return response.status(400).json({
@@ -61,17 +63,27 @@ timecardsController.post("/", async (request, response) => {
       });
     }
 
+    // Optional: Validate 'status' if provided
+    const validStatuses = ['active', 'submitted']; 
+    if (status && !validStatuses.includes(status.toLowerCase())) {
+      return response.status(400).json({
+        error: `Invalid status value. Valid statuses are: ${validStatuses.join(', ')}`,
+        receivedStatus: status
+      });
+    }
+
     const newTimecard = await createTimecard(employee_id, work_date, request.body);
 
     // Log success message
-    console.log(`Successfully created timecard for employee ${employee_id} on ${work_date}`);
+    console.log(`Successfully created timecard with ID ${newTimecard.id} for employee ${employee_id} on ${work_date}. Timecard ID: ${newTimecard.id}`);
     
     response.status(201).json({ data: newTimecard });
   } catch (err) {
     console.error(`Error in POST /timecards: ${err.message}`);
-    response.status(500).json({ error: "Internal server error while Creating New Timecard. Please contact support." });
+    response.status(500).json({ error: "Internal server error while creating new timecard. Please contact support." });
   }
 });
+
 
 // Update timecard
 timecardsController.put(
@@ -81,15 +93,17 @@ timecardsController.put(
   async (request, response) => {
     try {
       const { id } = request.params;
-      const { start_time, lunch_start, lunch_end, end_time, total_time } = request.body;
+      const { status, start_time, lunch_start, lunch_end, end_time, total_time } = request.body;
 
       // Validate fields to ensure they exist before attempting to update
       const fieldsToUpdate = {};
+      if (status !== undefined) fieldsToUpdate.status = status;
       if (start_time !== undefined) fieldsToUpdate.start_time = start_time;
       if (lunch_start !== undefined) fieldsToUpdate.lunch_start = lunch_start;
       if (lunch_end !== undefined) fieldsToUpdate.lunch_end = lunch_end;
       if (end_time !== undefined) fieldsToUpdate.end_time = end_time;
       if (total_time !== undefined) fieldsToUpdate.total_time = total_time;
+      console.log(fieldsToUpdate)
 
       if (Object.keys(fieldsToUpdate).length === 0) {
         console.log("No valid fields provided for update");
@@ -101,7 +115,7 @@ timecardsController.put(
       response.status(200).json({ data: updatedTimecard });
     } catch (err) {
       console.log(`Error Updating Timecard: ${ err.message }`)
-      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
+      response.status(500).json({ error: "Internal server error while updating timecard. Please contact support." });
     }
   }
 );
@@ -160,4 +174,3 @@ timecardsController.get('/employee/:employeeId/range/:startDate/:endDate', async
 
 
 module.exports = timecardsController;
-

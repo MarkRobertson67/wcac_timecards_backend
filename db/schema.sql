@@ -26,7 +26,8 @@ CREATE TABLE timecards (
     lunch_end TIME,
     end_time TIME,
     total_time INTERVAL,
-    status VARCHAR(20) DEFAULT 'active' -- New column to store the status of the timecard ('active', 'submitted')
+    status VARCHAR(20) DEFAULT 'active', -- New column to store the status of the timecard ('active', 'submitted')
+    CONSTRAINT unique_employee_work_date UNIQUE (employee_id, work_date) -- Unique constraint
 );
 
 
