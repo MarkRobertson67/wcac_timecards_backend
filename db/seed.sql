@@ -3,10 +3,10 @@
 -- See LICENSE.txt file for details.
 
 --  Insert employees
-INSERT INTO employees (first_name, last_name, email, phone, position) VALUES
-('John', 'Doe', 'john.doe@example.com', '732-555-1234', 'Bus Driver'),
-('Jane', 'Smith', 'jane.smith@example.com', '732-555-5678', 'Nurse'),
-('Bob', 'Johnson', 'bob.johnson@example.com', '908-555-9101', 'Entertainment Director');
+INSERT INTO employees (first_name, last_name, email, phone, position, role) VALUES
+('Beth', 'Doe', 'beth.doe@example.com', '732-555-1234', 'Office Manager', 'Admin'),
+('Jane', 'Smith', 'jane.smith@example.com', '732-555-5678', 'Nurse', 'Employee'),
+('Bob', 'Johnson', 'bob.johnson@example.com', '908-555-9101', 'Entertainment Director', 'Employee');
 
 -- Insert timecards for John Doe (Bus Driver)
 INSERT INTO timecards (employee_id, work_date, start_time, lunch_start, lunch_end, end_time, total_time, status) VALUES
