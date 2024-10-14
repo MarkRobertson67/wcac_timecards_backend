@@ -1,8 +1,12 @@
-
+// Proprietary Software License
+// Copyright (c) 2024 Mark Robertson
+// See LICENSE.txt file for details.
 
 // DEPENDENCIES
 const express = require("express");
 const cors = require("cors");
+const morgan = require('morgan');
+
 
 
 // CONFIGURATION
@@ -11,8 +15,20 @@ const app = express();
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
+app.use(morgan('dev'));
+
 
 //Controllers
+const employeesController = require("./controllers/EmployeeController");
+const timecardsController = require("./controllers/TimecardController");
+const reportsController = require("./controllers/ReportController");
+
+
+// ROUTES
+// Example routes using controllers
+app.use("/employees", employeesController);
+app.use("/timecards", timecardsController);
+app.use("/reports", reportsController);
 
 
 // HEALTH CHECK ROUTE
