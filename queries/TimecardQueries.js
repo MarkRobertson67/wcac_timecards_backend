@@ -104,6 +104,7 @@ const updateTimecard = async (id, fieldsToUpdate) => {
 };
 
 
+
 // Delete a timecard by ID
 const deleteTimecard = async (id) => {
     try {
