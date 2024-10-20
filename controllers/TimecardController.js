@@ -53,6 +53,7 @@ timecardsController.get(
 // Create new timecard
 timecardsController.post("/", async (request, response) => {
   try {
+    console.log("POST request received for timecards");
     console.log("Request body:", request.body);
     const { employee_id, work_date, status } = request.body;
 
