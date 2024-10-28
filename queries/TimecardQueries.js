@@ -73,7 +73,7 @@ const createTimecard = async (employee_id, work_date, data) => {
 };
 
 
-const updateTimecard = async (id, fieldsToUpdate) => {
+const updateTimecard = async (id, fieldsToUpdate, work_date) => {
     try {
         // Filter out undefined, null, or empty string fields from the update
         const validFields = Object.keys(fieldsToUpdate).filter(
@@ -95,7 +95,10 @@ const updateTimecard = async (id, fieldsToUpdate) => {
         `;
 
         const updatedTimecard = await db.one(query, values);
-        console.log(`Successfully updated timecard with ID ${id}`);
+        // Get work_date from updatedTimecard
+        const date = updatedTimecard.work_date || work_date; // Fallback to passed work_date if not updated
+        console.log(`Successfully updated timecard with ID ${id} on ${work_date}`);
+
         return updatedTimecard;
     } catch (error) {
         console.error(`Error updating timecard with ID ${id}: ${error.message}`);
