@@ -161,15 +161,16 @@ timecardsController.get(
 timecardsController.get('/employee/:employeeId/range/:startDate/:endDate', async (request, response) => {
   const { employeeId, startDate, endDate } = request.params;
   try {
-      const timecard = await getTimecardsByEmployeeAndDateRange(employeeId, startDate, endDate);
-      if (timecard) {
-          response.status(200).json({ data: timecard });
-      } else {
-          response.status(404).json({ error: "Timecard not found" });
-      }
+    const timecards = await getTimecardsByEmployeeAndDateRange(employeeId, startDate, endDate);
+    if (timecards.length > 0) { // Check if any timecards are found
+        response.status(200).json({ data: timecards });
+    } else {
+        console.log(`No timecards found for employee ID ${employeeId} between ${startDate} and ${endDate}. Creating new entries...`);
+        response.status(200).json({ data: timecards });
+    }
   } catch (err) {
       console.error(`Error fetching timecard for employee ID ${employeeId} between ${startDate} and ${endDate}: ${err.message}`);
-      response.status(500).json({ error: "Internal server error while fetching timecard. Please contact support." });
+      response.status(500).json({ error: "Internal server error while fetching timecards. Please contact support." });
   }
 });
 
