@@ -94,17 +94,35 @@ timecardsController.put(
   async (request, response) => {
     try {
       const { id } = request.params;
-      const { status, start_time, lunch_start, lunch_end, end_time, total_time } = request.body;
+      const {
+        status,
+        facility_start_time,
+        facility_lunch_start,
+        facility_lunch_end,
+        facility_end_time,
+        driving_start_time,
+        driving_lunch_start,
+        driving_lunch_end,
+        driving_end_time,
+        facility_total_hours,
+        driving_total_hours,
+      } = request.body;
 
       // Validate fields to ensure they exist before attempting to update
       const fieldsToUpdate = {};
       if (status !== undefined) fieldsToUpdate.status = status;
-      if (start_time !== undefined) fieldsToUpdate.start_time = start_time;
-      if (lunch_start !== undefined) fieldsToUpdate.lunch_start = lunch_start;
-      if (lunch_end !== undefined) fieldsToUpdate.lunch_end = lunch_end;
-      if (end_time !== undefined) fieldsToUpdate.end_time = end_time;
-      if (total_time !== undefined) fieldsToUpdate.total_time = total_time;
-      console.log(fieldsToUpdate)
+      if (facility_start_time !== undefined) fieldsToUpdate.facility_start_time = facility_start_time;
+      if (facility_lunch_start !== undefined) fieldsToUpdate.facility_lunch_start = facility_lunch_start;
+      if (facility_lunch_end !== undefined) fieldsToUpdate.facility_lunch_end = facility_lunch_end;
+      if (facility_end_time !== undefined) fieldsToUpdate.facility_end_time = facility_end_time;
+      if (driving_start_time !== undefined) fieldsToUpdate.driving_start_time = driving_start_time;
+      if (driving_lunch_start !== undefined) fieldsToUpdate.driving_lunch_start = driving_lunch_start;
+      if (driving_lunch_end !== undefined) fieldsToUpdate.driving_lunch_end = driving_lunch_end;
+      if (driving_end_time !== undefined) fieldsToUpdate.driving_end_time = driving_end_time;
+      if (facility_total_hours !== undefined) fieldsToUpdate.facility_total_hours = facility_total_hours;
+      if (driving_total_hours !== undefined) fieldsToUpdate.driving_total_hours = driving_total_hours;
+
+      console.log("Fields to update:", fieldsToUpdate);
 
       if (Object.keys(fieldsToUpdate).length === 0) {
         console.log("No valid fields provided for update");
