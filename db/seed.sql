@@ -11,86 +11,78 @@ INSERT INTO employees (paychex_id, first_name, last_name, email, phone, position
 
 
 -- Insert timecards for Beth Doe (Office Manager)
-INSERT INTO timecards (employee_id, work_date, facility_start_time, facility_lunch_start, facility_lunch_end, facility_end_time, facility_total_hours, status) VALUES
-(1, '2024-10-01', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-02', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-03', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-04', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-07', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-08', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-09', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-10', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-11', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-14', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-15', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-16', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-17', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-18', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-21', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-22', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-23', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-24', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-25', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-28', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-29', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-30', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-10-31', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted'),
-(1, '2024-11-01', '09:00', '12:00', '12:30', '17:00', '07:30', 'submitted');
+INSERT INTO timecards 
+    (employee_id, work_date, morning_activity, driving_start_time, driving_lunch_start, facility_start_time, facility_lunch_start, afternoon_activity, driving_lunch_end, driving_end_time, facility_lunch_end, facility_end_time, driving_total_hours, facility_total_hours, status) 
+VALUES
+(1, '2024-10-21', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-22', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-23', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-24', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-25', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-28', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-29', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-30', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-10-31', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-01', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-04', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-05', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-06', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-07', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-08', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'submitted'),
+(1, '2024-11-11', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'active'),
+(1, '2024-11-12', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '17:00', NULL, '07:30', 'active');
 
 
 
--- Insert timecards for Jane Smith (Driver and Domestic)
-INSERT INTO timecards (employee_id, work_date, driving_start_time, driving_lunch_start, driving_lunch_end, driving_end_time, driving_total_hours, facility_start_time, facility_lunch_start, facility_lunch_end, facility_end_time, facility_total_hours, status) VALUES
-(2, '2024-10-01', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Tue (Driving only)
-(2, '2024-10-02', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'), -- Wed (Facility only)
-(2, '2024-10-03', '07:30', '11:00', '11:30', '13:00', '05:30', '13:30', '14:00', '14:30', '17:00', '03:30', 'submitted'), -- Thu (Mixed driving and facility)
-(2, '2024-10-04', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Fri (Driving only)
-(2, '2024-10-07', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'), -- Mon (Facility only)
-(2, '2024-10-08', '07:00', '10:00', '10:30', '14:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Tue (Driving only)
-(2, '2024-10-09', NULL, NULL, NULL, NULL, NULL, '08:30', '12:00', '12:30', '15:30', '07:00', 'submitted'), -- Wed (Facility only)
-(2, '2024-10-10', '08:00', '12:00', '12:30', '16:00', '08:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Thu (Driving only)
-(2, '2024-10-11', '07:00', '11:00', '11:30', '13:00', '06:00', '13:30', '14:00', '14:30', '17:00', '03:30', 'submitted'), -- Fri (Mixed)
-(2, '2024-10-14', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Mon (Driving only)
-(2, '2024-10-15', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'), -- Tue (Facility only)
-(2, '2024-10-16', '07:30', '11:00', '11:30', '13:00', '05:30', '13:30', '14:00', '14:30', '17:00', '03:30', 'submitted'), -- Wed (Mixed)
-(2, '2024-10-17', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Thu (Driving only)
-(2, '2024-10-18', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'), -- Fri (Facility only)
-(2, '2024-10-21', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Mon (Driving only)
-(2, '2024-10-22', '07:00', '10:00', '10:30', '14:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Tue (Driving only)
-(2, '2024-10-23', '07:30', '11:00', '11:30', '13:00', '05:30', '13:30', '14:00', '14:30', '17:00', '03:30', 'submitted'), -- Wed (Mixed)
-(2, '2024-10-24', '08:00', '12:00', '12:30', '16:00', '08:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Thu (Driving only)
-(2, '2024-10-25', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'), -- Fri (Facility only)
-(2, '2024-10-28', '07:00', '10:00', '10:30', '15:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Mon (Driving only)
-(2, '2024-10-29', '07:00', '10:00', '10:30', '14:00', '07:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Tue (Driving only)
-(2, '2024-10-30', '07:30', '11:00', '11:30', '13:00', '05:30', '13:30', '14:00', '14:30', '17:00', '03:30', 'submitted'), -- Wed (Mixed)
-(2, '2024-10-31', '08:00', '12:00', '12:30', '16:00', '08:00', NULL, NULL, NULL, NULL, NULL, 'submitted'), -- Thu (Driving only)
-(2, '2024-11-01', NULL, NULL, NULL, NULL, NULL, '08:00', '12:00', '12:30', '16:00', '08:00', 'submitted'); -- Fri (Facility only)
+
+
+
+-- Insert timecards for Jane Smith (Nurse)
+INSERT INTO timecards 
+    (employee_id, work_date, morning_activity, driving_start_time, driving_lunch_start, facility_start_time, facility_lunch_start, afternoon_activity, driving_lunch_end, driving_end_time, facility_lunch_end, facility_end_time, driving_total_hours, facility_total_hours, status) 
+VALUES
+(2, '2024-10-21', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-10-22', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'submitted'),
+(2, '2024-10-23', 'Driving', '07:30', '11:00', NULL, NULL, 'Facility', '11:30', '13:00', '14:30', '17:00', '05:00', '02:30', 'submitted'),
+(2, '2024-10-24', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-10-25', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'submitted'),
+(2, '2024-10-28', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '14:00', NULL, NULL, '06:00', NULL, 'submitted'),
+(2, '2024-10-29', 'Facility', NULL, NULL, '08:30', '12:00', 'Facility', NULL, NULL, '12:30', '15:30', NULL, '06:00', 'submitted'),
+(2, '2024-10-30', 'Driving', '08:00', '12:00', NULL, NULL, 'Driving', '12:30', '16:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-10-31', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-11-01', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'submitted'),
+(2, '2024-11-04', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-11-05', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'submitted'),
+(2, '2024-11-06', 'Driving', '07:30', '11:00', NULL, NULL, 'Facility', '11:30', '13:00', '14:30', '17:00', '05:00', '02:30', 'submitted'),
+(2, '2024-11-07', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'submitted'),
+(2, '2024-11-08', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'submitted'),
+(2, '2024-11-11', 'Driving', '07:00', '10:00', NULL, NULL, 'Driving', '10:30', '15:00', NULL, NULL, '07:30', NULL, 'active'),
+(2, '2024-11-12', 'Facility', NULL, NULL, '08:00', '12:00', 'Facility', NULL, NULL, '12:30', '16:00', NULL, '07:30', 'active');
+
+
+
 
 
 
 -- Insert timecards for Bob Johnson (Entertainment Director)
-INSERT INTO timecards (employee_id, work_date, facility_start_time, facility_lunch_start, facility_lunch_end, facility_end_time, facility_total_hours, status) VALUES
-(3, '2024-10-01', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-02', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-03', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-04', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-07', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-08', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-09', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-10', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-11', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-14', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-15', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-16', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-17', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-18', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-21', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-22', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-23', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-24', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-25', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-28', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-29', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-30', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-10-31', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted'),
-(3, '2024-11-01', '09:00', '12:00', '12:30', '18:00', '08:30', 'submitted');
+INSERT INTO timecards 
+    (employee_id, work_date, morning_activity, driving_start_time, driving_lunch_start, facility_start_time, facility_lunch_start, afternoon_activity, driving_lunch_end, driving_end_time, facility_lunch_end, facility_end_time, driving_total_hours, facility_total_hours, status) 
+VALUES
+(3, '2024-10-21', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-22', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-23', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-24', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-25', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-28', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-29', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-30', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-10-31', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-01', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-04', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-05', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-06', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-07', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-08', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'submitted'),
+(3, '2024-11-11', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'active'),
+(3, '2024-11-12', 'Facility', NULL, NULL, '09:00', '12:00', 'Facility', NULL, NULL, '12:30', '18:00', NULL, '08:30', 'active');
+
