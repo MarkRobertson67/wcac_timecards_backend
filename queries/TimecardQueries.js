@@ -37,11 +37,26 @@ const getTimecardById = async (id) => {
   
 const createTimecard = async (employee_id, work_date, data) => {
     try {
-        const keys = ['start_time', 'lunch_start', 'lunch_end', 'end_time', 'total_time', 'status'];
+        const keys = [
+            'morning_activity', 'afternoon_activity',
+            'facility_start_time', 'facility_lunch_start', 'facility_lunch_end', 'facility_end_time',
+            'driving_start_time', 'driving_lunch_start', 'driving_lunch_end', 'driving_end_time',
+            'facility_total_hours', 'driving_total_hours', 'status'
+        ];
         
-        // Filter out null, undefined, or empty string values
-        const fields = keys.filter(key => data[key] !== undefined && data[key] !== null && data[key] !== "");
-        const values = fields.map(field => data[field]);
+        // // Filter out null, undefined, or empty string values
+        // const fields = keys.filter(key => data[key] !== undefined && data[key] !== null && data[key] !== "");
+        // const values = fields.map(field => data[field]);
+
+        // Update to handle null values correctly for missing or empty data
+        const fields = keys.filter(key => data[key] !== undefined && data[key] !== "");
+        const values = fields.map(field => {
+            if (data[field] && Object.keys(data[field]).length > 0) {
+                return data[field];
+            } else {
+                return null; // Set empty values to null
+            }
+        });
 
         if (fields.length === 0) {
             throw new Error('No valid fields provided for timecard creation');
@@ -96,7 +111,7 @@ const updateTimecard = async (id, fieldsToUpdate, work_date) => {
 
         const updatedTimecard = await db.one(query, values);
         // Get work_date from updatedTimecard
-        const date = updatedTimecard.work_date || work_date; // Fallback to passed work_date if not updated
+        //const date = updatedTimecard.work_date || work_date; // Fallback to passed work_date if not updated
         console.log(`Successfully updated timecard with ID ${id} on ${work_date}`);
 
         return updatedTimecard;

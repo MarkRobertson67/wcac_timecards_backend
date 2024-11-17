@@ -16,6 +16,14 @@ BEGIN
 END $$;
 
 
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'activity_enum') THEN
+        CREATE TYPE activity_enum AS ENUM ('Driving', 'Facility');
+    END IF;
+END $$;
+
+
 -- Create employees table
 CREATE TABLE employees (
     id SERIAL PRIMARY KEY,
@@ -34,6 +42,9 @@ CREATE TABLE timecards (
     id SERIAL PRIMARY KEY,
     employee_id INT REFERENCES employees(id) ON DELETE CASCADE,
     work_date DATE NOT NULL,
+
+    morning_activity activity_enum NOT NULL DEFAULT 'Facility', -- Set default value to 'Facility'
+    afternoon_activity activity_enum NOT NULL DEFAULT 'Facility', 
 
     facility_start_time TIME,
     facility_lunch_start TIME,
