@@ -180,7 +180,7 @@ const getDetailedTimecardsByEmployee = async (employeeId, startDate, endDate) =>
 
 
 
-
+// Get employee summary report by employee ID, period, and date range
 const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) => {
     try {
         let query;
@@ -203,8 +203,10 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     e.last_name,
                     DATE_TRUNC('week', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     5 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -224,8 +226,10 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     e.last_name,
                     DATE_TRUNC('month', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     20 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -244,8 +248,10 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     e.last_name,
                     DATE_TRUNC('year', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     240 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -265,12 +271,18 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
 
         // Adjust to return hours and minutes instead of decimal values
         return result.map(entry => {
-            const totalHours = parseInt(entry.total_hours, 10) || 0;
-            const totalMinutes = parseInt(entry.total_minutes, 10) || 0;
+            const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
+            const facilityTotalMinutes = parseInt(entry.facility_total_minutes, 10) || 0;
+            const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
+            const drivingTotalMinutes = parseInt(entry.driving_total_minutes, 10) || 0;
 
-            // Adjust minutes into hours
-            const adjustedHours = totalHours + Math.floor(totalMinutes / 60);
-            const remainingMinutes = totalMinutes % 60;
+            // Adjust minutes into hours for facility
+            const adjustedFacilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+            const remainingFacilityMinutes = facilityTotalMinutes % 60;
+
+            // Adjust minutes into hours for driving
+            const adjustedDrivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+            const remainingDrivingMinutes = drivingTotalMinutes % 60;
 
             return {
                 employee_id: entry.employee_id,
@@ -279,9 +291,13 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                 summary_period: entry.summary_period,
                 days_worked: entry.days_worked,
                 absentee_days: entry.absentee_days,
-                total_hours: {
-                    hours: adjustedHours,
-                    minutes: remainingMinutes
+                facility_total_hours: {
+                    hours: adjustedFacilityHours,
+                    minutes: remainingFacilityMinutes
+                },
+                driving_total_hours: {
+                    hours: adjustedDrivingHours,
+                    minutes: remainingDrivingMinutes
                 }
             };
         });
@@ -291,6 +307,10 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
     }
 };
 
+
+
+
+// Get employee summary report for all employees, by period and date range
 const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
     try {
         let query;
@@ -306,8 +326,10 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                     e.last_name,
                     DATE_TRUNC('week', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     5 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -324,8 +346,10 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                     e.last_name,
                     DATE_TRUNC('month', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     20 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -342,8 +366,10 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                     e.last_name,
                     DATE_TRUNC('year', t.work_date) AS summary_period,
                     COUNT(t.id) AS days_worked,
-                    SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours,
-                    SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
                     240 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
@@ -360,11 +386,18 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
         console.log(result);
 
         return result.map(entry => {
-            const totalHours = parseInt(entry.total_hours, 10) || 0;
-            const totalMinutes = parseInt(entry.total_minutes, 10) || 0;
+            const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
+            const facilityTotalMinutes = parseInt(entry.facility_total_minutes, 10) || 0;
+            const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
+            const drivingTotalMinutes = parseInt(entry.driving_total_minutes, 10) || 0;
 
-            const adjustedHours = totalHours + Math.floor(totalMinutes / 60);
-            const remainingMinutes = totalMinutes % 60;
+            // Adjust minutes into hours for facility
+            const adjustedFacilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+            const remainingFacilityMinutes = facilityTotalMinutes % 60;
+
+            // Adjust minutes into hours for driving
+            const adjustedDrivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+            const remainingDrivingMinutes = drivingTotalMinutes % 60;
 
             return {
                 employee_id: entry.employee_id,
@@ -373,9 +406,13 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                 summary_period: entry.summary_period,
                 days_worked: entry.days_worked,
                 absentee_days: entry.absentee_days,
-                total_hours: {
-                    hours: adjustedHours,
-                    minutes: remainingMinutes
+                facility_total_hours: {
+                    hours: adjustedFacilityHours,
+                    minutes: remainingFacilityMinutes
+                },
+                driving_total_hours: {
+                    hours: adjustedDrivingHours,
+                    minutes: remainingDrivingMinutes
                 }
             };
         });
@@ -384,6 +421,7 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
         throw new Error(`Error retrieving employee summary report for all employees: ${error.message}`);
     }
 };
+
 
 module.exports = {
     getTotalHoursWorkedByEmployeeByDateRange,
