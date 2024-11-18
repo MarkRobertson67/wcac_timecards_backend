@@ -18,8 +18,11 @@ const getTotalHoursWorkedByEmployeeByDateRange = async (employee_id, startDate, 
                 e.id AS employee_id, 
                 e.first_name, 
                 e.last_name, 
-                SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours, 
-                SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes
+                SUM(EXTRACT(HOUR FROM t.facility_total_hours)) AS facility_total_hours, 
+                SUM(EXTRACT(MINUTE FROM t.facility_total_hours)) AS facility_total_minutes,
+                SUM(EXTRACT(HOUR FROM t.driving_total_hours)) AS driving_total_hours, 
+                SUM(EXTRACT(MINUTE FROM t.driving_total_hours)) AS driving_total_minutes
+
             FROM employees e
             JOIN timecards t ON e.id = t.employee_id
             WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
@@ -31,22 +34,35 @@ const getTotalHoursWorkedByEmployeeByDateRange = async (employee_id, startDate, 
 
         const result = await db.any(query, [employee_id, startDate, endDate]);
 
-        return result.map(employee => {
-            const totalHours = parseInt(employee.total_hours, 10) || 0;
-            const totalMinutes = parseInt(employee.total_minutes, 10) || 0;
+                // Log the result to check what is returned from the query
+                console.log("Query Result:", result);
 
-            // Adjust minutes into hours
-            const hours = totalHours + Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
-
-            return {
-                employee_id: employee.employee_id,
-                first_name: employee.first_name,
-                last_name: employee.last_name,
-                total_hours: { hours, minutes }
-            };
-        });
-    } catch (error) {
+                return result.map(employee => {
+                    // Extract facility hours and minutes
+                    const facilityTotalHours = parseInt(employee.facility_total_hours, 10) || 0;
+                    const facilityTotalMinutes = parseInt(employee.facility_total_minutes, 10) || 0;
+        
+                    // Adjust minutes into hours for facility hours
+                    const facilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+                    const facilityMinutes = facilityTotalMinutes % 60;
+        
+                    // Extract driving hours and minutes
+                    const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
+                    const drivingTotalMinutes = parseInt(employee.driving_total_minutes, 10) || 0;
+        
+                    // Adjust minutes into hours for driving hours
+                    const drivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+                    const drivingMinutes = drivingTotalMinutes % 60;
+        
+                    return {
+                        employee_id: employee.employee_id,
+                        first_name: employee.first_name,
+                        last_name: employee.last_name,
+                        facility_total_hours: { hours: facilityHours, minutes: facilityMinutes },
+                        driving_total_hours: { hours: drivingHours, minutes: drivingMinutes }
+                    };
+                });
+            } catch (error) {
         throw new Error(`Error retrieving total hours worked: ${error.message}`);
     }
 };
@@ -57,29 +73,41 @@ const getTotalHoursWorkedByAllEmployeesByDateRange = async (startDate, endDate) 
     try {
         const query = `
         SELECT t.employee_id, e.first_name, e.last_name, 
-               SUM(EXTRACT(HOUR FROM t.total_time)) AS total_hours, 
-               SUM(EXTRACT(MINUTE FROM t.total_time)) AS total_minutes
+               SUM(EXTRACT(HOUR FROM t.facility_total_hours)) AS facility_total_hours, 
+                SUM(EXTRACT(MINUTE FROM t.facility_total_hours)) AS facility_total_minutes,
+                SUM(EXTRACT(HOUR FROM t.driving_total_hours)) AS driving_total_hours, 
+                SUM(EXTRACT(MINUTE FROM t.driving_total_hours)) AS driving_total_minutes
         FROM timecards t
         JOIN employees e ON t.employee_id = e.id
         WHERE t.work_date BETWEEN $1 AND $2
         GROUP BY t.employee_id, e.first_name, e.last_name
         ORDER BY t.employee_id;
     `;
-        const timecards = await db.any(query, [startDate, endDate]);
+        const result = await db.any(query, [startDate, endDate]);
 
-        return timecards.map(entry => {
-            const totalHours = parseInt(entry.total_hours, 10) || 0;
-            const totalMinutes = parseInt(entry.total_minutes, 10) || 0;
+        return result.map(employee => {
+            // Extract facility hours and minutes
+            const facilityTotalHours = parseInt(employee.facility_total_hours, 10) || 0;
+            const facilityTotalMinutes = parseInt(employee.facility_total_minutes, 10) || 0;
 
-            // Adjust minutes into hours
-            const hours = totalHours + Math.floor(totalMinutes / 60);
-            const minutes = totalMinutes % 60;
+            // Adjust minutes into hours for facility hours
+            const facilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+            const facilityMinutes = facilityTotalMinutes % 60;
+
+            // Extract driving hours and minutes
+            const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
+            const drivingTotalMinutes = parseInt(employee.driving_total_minutes, 10) || 0;
+
+            // Adjust minutes into hours for driving hours
+            const drivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+            const drivingMinutes = drivingTotalMinutes % 60;
 
             return {
-                employee_id: entry.employee_id,
-                first_name: entry.first_name,
-                last_name: entry.last_name,
-                total_hours: { hours, minutes }
+                employee_id: employee.employee_id,
+                first_name: employee.first_name,
+                last_name: employee.last_name,
+                facility_total_hours: { hours: facilityHours, minutes: facilityMinutes },
+                driving_total_hours: { hours: drivingHours, minutes: drivingMinutes }
             };
         });
     } catch (error) {
