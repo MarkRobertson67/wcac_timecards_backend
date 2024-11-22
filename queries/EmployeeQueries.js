@@ -47,12 +47,18 @@ const createEmployee = async (first_name, last_name, email, phone, position) => 
 };
 
 // Update an employee by ID
-const updateEmployee = async (id, { first_name, last_name, email, phone, position }) => {
+const updateEmployee = async (id, { first_name, last_name, email, phone, position, paychex_id, is_admin }) => {
   try {
+    // Ensure is_admin is always either true or false, never null
+    if (is_admin === undefined || is_admin === null) {
+      is_admin = false; // Set default value to false if not provided
+    }
+
     const updatedEmployee = await db.oneOrNone(
-      "UPDATE employees SET first_name = $1, last_name = $2, email = $3, phone = $4, position = $5 WHERE id = $6 RETURNING *",
-      [first_name, last_name, email, phone, position, id]
+      "UPDATE employees SET first_name = $1, last_name = $2, email = $3, phone = $4, position = $5, paychex_id = $6, is_admin = $7 WHERE id = $8 RETURNING *",
+      [first_name, last_name, email, phone, position, paychex_id, is_admin, id]
     );
+
     if (!updatedEmployee) {
       throw new Error(`Employee with ID ${id} not found.`);
     }
@@ -62,6 +68,8 @@ const updateEmployee = async (id, { first_name, last_name, email, phone, positio
     throw new Error(`Error updating employee: ${error.message}`);
   }
 };
+
+
 
 // Delete an employee by ID
 const deleteEmployee = async (id) => {
