@@ -80,14 +80,15 @@ employeesController.put(
   async (request, response) => {
     try {
       const { id } = request.params;
-      const { first_name, last_name, email, phone, position } = request.body;
-      const updatedEmployee = await updateEmployee(id, { first_name, last_name, email, phone, position });
+      const { first_name, last_name, email, phone, position, paychex_id, is_admin } = request.body;
+      const updatedEmployee = await updateEmployee(id, { first_name, last_name, email, phone, position, paychex_id, is_admin });
       response.status(200).json({ message: "Employee updated successfully", data: updatedEmployee });
     } catch (err) {
       response.status(500).json({ error: err.message });
     }
   }
 );
+
 
 // DELETE employee
 employeesController.delete(
