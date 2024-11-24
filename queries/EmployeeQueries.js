@@ -32,6 +32,24 @@ const getEmployeeById = async (id) => {
 };
 
 
+// Get employee by Firebase UID
+const getEmployeeByFirebaseUid = async (firebase_uid) => {
+  try {
+    console.log("Fetching employee with Firebase UID:", firebase_uid); // Debug log
+    const employee = await db.oneOrNone("SELECT * FROM employees WHERE firebase_uid = $1", [firebase_uid]);
+    if (!employee) {
+      console.log("No employee found with Firebase UID:", firebase_uid); // Debug log
+      throw new Error(`No employee found with Firebase UID ${firebase_uid}`);
+    }
+    return employee;
+  } catch (error) {
+    console.error(`Error retrieving employee with Firebase UID ${firebase_uid}:`, error.message);
+    throw new Error(`Unable to retrieve employee with Firebase UID ${firebase_uid}`);
+  }
+};
+
+
+
 // Create a new employee
 const createEmployee = async (firebase_uid, first_name, last_name, email, phone, position) => {
   try {
@@ -91,6 +109,7 @@ const deleteEmployee = async (id) => {
 module.exports = {
   getAllEmployees,
   getEmployeeById,
+  getEmployeeByFirebaseUid,
   createEmployee,
   updateEmployee,
   deleteEmployee,
