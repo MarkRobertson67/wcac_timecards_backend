@@ -5,15 +5,18 @@
 const db = require("../db/dbConfig");
 
 // Get total hours worked by employee within a date range
-const getTotalHoursWorkedByEmployeeByDateRange = async (employee_id, startDate, endDate) => {
-    try {
+const getTotalHoursWorkedByEmployeeByDateRange = async (
+  employee_id,
+  startDate,
+  endDate
+) => {
+  try {
+    // If the employee_id is "ALL", delegate to the function handling all employees
+    if (employee_id === "ALL") {
+      return getTotalHoursWorkedByAllEmployeesByDateRange(startDate, endDate);
+    }
 
-        // If the employee_id is "ALL", delegate to the function handling all employees
-        if (employee_id === 'ALL') {
-            return getTotalHoursWorkedByAllEmployeesByDateRange(startDate, endDate);
-        }
-
-        const query = `
+    const query = `
             SELECT 
                 e.id AS employee_id, 
                 e.first_name, 
@@ -29,49 +32,61 @@ const getTotalHoursWorkedByEmployeeByDateRange = async (employee_id, startDate, 
             GROUP BY e.id, e.first_name, e.last_name
             ORDER BY e.id
         `;
-        console.log(`Running query: ${query}`);
-        console.log(`With params: employee_id = ${employee_id}, startDate = ${startDate}, endDate = ${endDate}`);
+    console.log(`Running query: ${query}`);
+    console.log(
+      `With params: employee_id = ${employee_id}, startDate = ${startDate}, endDate = ${endDate}`
+    );
 
-        const result = await db.any(query, [employee_id, startDate, endDate]);
+    const result = await db.any(query, [employee_id, startDate, endDate]);
 
-                // Log the result to check what is returned from the query
-                console.log("Query Result:", result);
+    // Log the result to check what is returned from the query
+    console.log("Query Result:", result);
 
-                return result.map(employee => {
-                    // Extract facility hours and minutes
-                    const facilityTotalHours = parseInt(employee.facility_total_hours, 10) || 0;
-                    const facilityTotalMinutes = parseInt(employee.facility_total_minutes, 10) || 0;
-        
-                    // Adjust minutes into hours for facility hours
-                    const facilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
-                    const facilityMinutes = facilityTotalMinutes % 60;
-        
-                    // Extract driving hours and minutes
-                    const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
-                    const drivingTotalMinutes = parseInt(employee.driving_total_minutes, 10) || 0;
-        
-                    // Adjust minutes into hours for driving hours
-                    const drivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
-                    const drivingMinutes = drivingTotalMinutes % 60;
-        
-                    return {
-                        employee_id: employee.employee_id,
-                        first_name: employee.first_name,
-                        last_name: employee.last_name,
-                        facility_total_hours: { hours: facilityHours, minutes: facilityMinutes },
-                        driving_total_hours: { hours: drivingHours, minutes: drivingMinutes }
-                    };
-                });
-            } catch (error) {
-        throw new Error(`Error retrieving total hours worked: ${error.message}`);
-    }
+    return result.map((employee) => {
+      // Extract facility hours and minutes
+      const facilityTotalHours =
+        parseInt(employee.facility_total_hours, 10) || 0;
+      const facilityTotalMinutes =
+        parseInt(employee.facility_total_minutes, 10) || 0;
+
+      // Adjust minutes into hours for facility hours
+      const facilityHours =
+        facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+      const facilityMinutes = facilityTotalMinutes % 60;
+
+      // Extract driving hours and minutes
+      const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
+      const drivingTotalMinutes =
+        parseInt(employee.driving_total_minutes, 10) || 0;
+
+      // Adjust minutes into hours for driving hours
+      const drivingHours =
+        drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+      const drivingMinutes = drivingTotalMinutes % 60;
+
+      return {
+        employee_id: employee.employee_id,
+        first_name: employee.first_name,
+        last_name: employee.last_name,
+        facility_total_hours: {
+          hours: facilityHours,
+          minutes: facilityMinutes,
+        },
+        driving_total_hours: { hours: drivingHours, minutes: drivingMinutes },
+      };
+    });
+  } catch (error) {
+    throw new Error(`Error retrieving total hours worked: ${error.message}`);
+  }
 };
 
-
 // Get timecards for all employees between start and end dates
-const getTotalHoursWorkedByAllEmployeesByDateRange = async (startDate, endDate) => {
-    try {
-        const query = `
+const getTotalHoursWorkedByAllEmployeesByDateRange = async (
+  startDate,
+  endDate
+) => {
+  try {
+    const query = `
         SELECT t.employee_id, e.first_name, e.last_name, 
                SUM(EXTRACT(HOUR FROM t.facility_total_hours)) AS facility_total_hours, 
                 SUM(EXTRACT(MINUTE FROM t.facility_total_hours)) AS facility_total_minutes,
@@ -83,44 +98,59 @@ const getTotalHoursWorkedByAllEmployeesByDateRange = async (startDate, endDate) 
         GROUP BY t.employee_id, e.first_name, e.last_name
         ORDER BY t.employee_id;
     `;
-        const result = await db.any(query, [startDate, endDate]);
+    const result = await db.any(query, [startDate, endDate]);
 
-        return result.map(employee => {
-            // Extract facility hours and minutes
-            const facilityTotalHours = parseInt(employee.facility_total_hours, 10) || 0;
-            const facilityTotalMinutes = parseInt(employee.facility_total_minutes, 10) || 0;
+    return result.map((employee) => {
+      // Extract facility hours and minutes
+      const facilityTotalHours =
+        parseInt(employee.facility_total_hours, 10) || 0;
+      const facilityTotalMinutes =
+        parseInt(employee.facility_total_minutes, 10) || 0;
 
-            // Adjust minutes into hours for facility hours
-            const facilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
-            const facilityMinutes = facilityTotalMinutes % 60;
+      // Adjust minutes into hours for facility hours
+      const facilityHours =
+        facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+      const facilityMinutes = facilityTotalMinutes % 60;
 
-            // Extract driving hours and minutes
-            const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
-            const drivingTotalMinutes = parseInt(employee.driving_total_minutes, 10) || 0;
+      // Extract driving hours and minutes
+      const drivingTotalHours = parseInt(employee.driving_total_hours, 10) || 0;
+      const drivingTotalMinutes =
+        parseInt(employee.driving_total_minutes, 10) || 0;
 
-            // Adjust minutes into hours for driving hours
-            const drivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
-            const drivingMinutes = drivingTotalMinutes % 60;
+      // Adjust minutes into hours for driving hours
+      const drivingHours =
+        drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+      const drivingMinutes = drivingTotalMinutes % 60;
 
-            return {
-                employee_id: employee.employee_id,
-                first_name: employee.first_name,
-                last_name: employee.last_name,
-                facility_total_hours: { hours: facilityHours, minutes: facilityMinutes },
-                driving_total_hours: { hours: drivingHours, minutes: drivingMinutes }
-            };
-        });
-    } catch (error) {
-        console.error(`Error retrieving timecards for all employees between ${startDate} and ${endDate}: ${error.message}`);
-        throw new Error('Error retrieving timecards for all employees. Please contact support.');
-    }
+      return {
+        employee_id: employee.employee_id,
+        first_name: employee.first_name,
+        last_name: employee.last_name,
+        facility_total_hours: {
+          hours: facilityHours,
+          minutes: facilityMinutes,
+        },
+        driving_total_hours: { hours: drivingHours, minutes: drivingMinutes },
+      };
+    });
+  } catch (error) {
+    console.error(
+      `Error retrieving timecards for all employees between ${startDate} and ${endDate}: ${error.message}`
+    );
+    throw new Error(
+      "Error retrieving timecards for all employees. Please contact support."
+    );
+  }
 };
 
-
 // Get detailed timecard entries for an employee within a date range
-const getDetailedTimecardsByEmployee = async (employeeId, startDate, endDate) => {
-    try {
-        const query = `
+const getDetailedTimecardsByEmployee = async (
+  employeeId,
+  startDate,
+  endDate
+) => {
+  try {
+    const query = `
             SELECT 
                 t.id AS timecard_id,
                 t.work_date,
@@ -140,63 +170,78 @@ const getDetailedTimecardsByEmployee = async (employeeId, startDate, endDate) =>
             WHERE t.employee_id = $1 AND t.work_date BETWEEN $2 AND $3
             ORDER BY t.work_date
         `;
-        console.log(`Running query: ${query}`);
-        console.log(`With params: employeeId = ${employeeId}, startDate = ${startDate}, endDate = ${endDate}`);
+    console.log(`Running query: ${query}`);
+    console.log(
+      `With params: employeeId = ${employeeId}, startDate = ${startDate}, endDate = ${endDate}`
+    );
 
-        const result = await db.any(query, [employeeId, startDate, endDate]);
+    const result = await db.any(query, [employeeId, startDate, endDate]);
 
-        return result.map(entry => {
-            // Parse facility total hours and minutes
-            const facilityHours = parseInt(entry.facility_hours, 10) || 0;
-            const facilityMinutes = parseInt(entry.facility_minutes, 10) || 0;
-            const adjustedFacilityHours = facilityHours + Math.floor(facilityMinutes / 60);
-            const adjustedFacilityMinutes = facilityMinutes % 60;
+    return result.map((entry) => {
+      // Parse facility total hours and minutes
+      const facilityHours = parseInt(entry.facility_hours, 10) || 0;
+      const facilityMinutes = parseInt(entry.facility_minutes, 10) || 0;
+      const adjustedFacilityHours =
+        facilityHours + Math.floor(facilityMinutes / 60);
+      const adjustedFacilityMinutes = facilityMinutes % 60;
 
-            // Parse driving total hours and minutes
-            const drivingHours = parseInt(entry.driving_hours, 10) || 0;
-            const drivingMinutes = parseInt(entry.driving_minutes, 10) || 0;
-            const adjustedDrivingHours = drivingHours + Math.floor(drivingMinutes / 60);
-            const adjustedDrivingMinutes = drivingMinutes % 60;
+      // Parse driving total hours and minutes
+      const drivingHours = parseInt(entry.driving_hours, 10) || 0;
+      const drivingMinutes = parseInt(entry.driving_minutes, 10) || 0;
+      const adjustedDrivingHours =
+        drivingHours + Math.floor(drivingMinutes / 60);
+      const adjustedDrivingMinutes = drivingMinutes % 60;
 
-            return {
-                timecard_id: entry.timecard_id,
-                work_date: entry.work_date,
-                facility_start_time: entry.facility_start_time,
-                facility_end_time: entry.facility_end_time,
-                facility_lunch_start: entry.facility_lunch_start,
-                facility_lunch_end: entry.facility_lunch_end,
-                driving_start_time: entry.driving_start_time,
-                driving_end_time: entry.driving_end_time,
-                driving_lunch_start: entry.driving_lunch_start,
-                driving_lunch_end: entry.driving_lunch_end,
-                facility_total_hours: { hours: adjustedFacilityHours, minutes: adjustedFacilityMinutes },
-                driving_total_hours: { hours: adjustedDrivingHours, minutes: adjustedDrivingMinutes }
-            };
-        });
-    } catch (error) {
-        throw new Error(`Error retrieving timecards: ${error.message}`);
-    }
+      return {
+        timecard_id: entry.timecard_id,
+        work_date: entry.work_date,
+        facility_start_time: entry.facility_start_time,
+        facility_end_time: entry.facility_end_time,
+        facility_lunch_start: entry.facility_lunch_start,
+        facility_lunch_end: entry.facility_lunch_end,
+        driving_start_time: entry.driving_start_time,
+        driving_end_time: entry.driving_end_time,
+        driving_lunch_start: entry.driving_lunch_start,
+        driving_lunch_end: entry.driving_lunch_end,
+        facility_total_hours: {
+          hours: adjustedFacilityHours,
+          minutes: adjustedFacilityMinutes,
+        },
+        driving_total_hours: {
+          hours: adjustedDrivingHours,
+          minutes: adjustedDrivingMinutes,
+        },
+      };
+    });
+  } catch (error) {
+    throw new Error(`Error retrieving timecards: ${error.message}`);
+  }
 };
 
-
-
 // Get employee summary report by employee ID, period, and date range
-const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) => {
-    try {
-        let query;
-        let params;
+const getEmployeeSummaryById = async (
+  employeeId,
+  period,
+  startDate,
+  endDate
+) => {
+  try {
+    let query;
+    let params;
 
-        // If the employeeId is "ALL", delegate the request to the getEmployeeSummaryForAll function
-        if (employeeId === 'ALL') {
-            return getEmployeeSummaryForAll(period, startDate, endDate);
-        }
+    // If the employeeId is "ALL", delegate the request to the getEmployeeSummaryForAll function
+    if (employeeId === "ALL") {
+      return getEmployeeSummaryForAll(period, startDate, endDate);
+    }
 
-        console.log(`Fetching employee summary for: ${employeeId}, Period: ${period}, Start: ${startDate}, End: ${endDate}`);
+    console.log(
+      `Fetching employee summary for: ${employeeId}, Period: ${period}, Start: ${startDate}, End: ${endDate}`
+    );
 
-        const isAllEmployees = employeeId === 'ALL';
+    const isAllEmployees = employeeId === "ALL";
 
-        if (period === 'weekly') {
-            query = `
+    if (period === "weekly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -210,16 +255,17 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     5 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? 'WHERE e.id = $1' : ''}
+                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
                 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
 
-            params = isAllEmployees ? [startDate, endDate] : [employeeId, startDate, endDate];
-
-        } else if (period === 'monthly') {
-            query = `
+      params = isAllEmployees
+        ? [startDate, endDate]
+        : [employeeId, startDate, endDate];
+    } else if (period === "monthly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -233,15 +279,16 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     20 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? 'WHERE e.id = $1' : ''}
+                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
                 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
-            params = isAllEmployees ? [startDate, endDate] : [employeeId, startDate, endDate];
-
-        } else if (period === 'yearly') {
-            query = `
+      params = isAllEmployees
+        ? [startDate, endDate]
+        : [employeeId, startDate, endDate];
+    } else if (period === "yearly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -255,71 +302,77 @@ const getEmployeeSummaryById = async (employeeId, period, startDate, endDate) =>
                     240 - COUNT(t.id) AS absentee_days
                 FROM employees e
                 JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? 'WHERE e.id = $1' : ''}
+                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
                 AND t.work_date BETWEEN $2 AND $3
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
-            params = isAllEmployees ? [startDate, endDate] : [employeeId, startDate, endDate];
-
-        } else {
-            throw new Error("Invalid period specified");
-        }
-
-        const result = await db.any(query, params);
-        console.log(result);
-
-        // Adjust to return hours and minutes instead of decimal values
-        return result.map(entry => {
-            const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
-            const facilityTotalMinutes = parseInt(entry.facility_total_minutes, 10) || 0;
-            const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
-            const drivingTotalMinutes = parseInt(entry.driving_total_minutes, 10) || 0;
-
-            // Adjust minutes into hours for facility
-            const adjustedFacilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
-            const remainingFacilityMinutes = facilityTotalMinutes % 60;
-
-            // Adjust minutes into hours for driving
-            const adjustedDrivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
-            const remainingDrivingMinutes = drivingTotalMinutes % 60;
-
-            return {
-                employee_id: entry.employee_id,
-                first_name: entry.first_name,
-                last_name: entry.last_name,
-                summary_period: entry.summary_period,
-                days_worked: entry.days_worked,
-                absentee_days: entry.absentee_days,
-                facility_total_hours: {
-                    hours: adjustedFacilityHours,
-                    minutes: remainingFacilityMinutes
-                },
-                driving_total_hours: {
-                    hours: adjustedDrivingHours,
-                    minutes: remainingDrivingMinutes
-                }
-            };
-        });
-    } catch (error) {
-        console.error(`Error in getEmployeeSummaryReport: ${error.message}`);
-        throw new Error(`Error retrieving employee summary report: ${error.message}`);
+      params = isAllEmployees
+        ? [startDate, endDate]
+        : [employeeId, startDate, endDate];
+    } else {
+      throw new Error("Invalid period specified");
     }
+
+    const result = await db.any(query, params);
+    console.log(result);
+
+    // Adjust to return hours and minutes instead of decimal values
+    return result.map((entry) => {
+      const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
+      const facilityTotalMinutes =
+        parseInt(entry.facility_total_minutes, 10) || 0;
+      const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
+      const drivingTotalMinutes =
+        parseInt(entry.driving_total_minutes, 10) || 0;
+
+      // Adjust minutes into hours for facility
+      const adjustedFacilityHours =
+        facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+      const remainingFacilityMinutes = facilityTotalMinutes % 60;
+
+      // Adjust minutes into hours for driving
+      const adjustedDrivingHours =
+        drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+      const remainingDrivingMinutes = drivingTotalMinutes % 60;
+
+      return {
+        employee_id: entry.employee_id,
+        first_name: entry.first_name,
+        last_name: entry.last_name,
+        summary_period: entry.summary_period,
+        days_worked: entry.days_worked,
+        absentee_days: entry.absentee_days,
+        facility_total_hours: {
+          hours: adjustedFacilityHours,
+          minutes: remainingFacilityMinutes,
+        },
+        driving_total_hours: {
+          hours: adjustedDrivingHours,
+          minutes: remainingDrivingMinutes,
+        },
+      };
+    });
+  } catch (error) {
+    console.error(`Error in getEmployeeSummaryReport: ${error.message}`);
+    throw new Error(
+      `Error retrieving employee summary report: ${error.message}`
+    );
+  }
 };
-
-
-
 
 // Get employee summary report for all employees, by period and date range
 const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
-    try {
-        let query;
-        let params;
+  try {
+    let query;
+    let params;
 
-        console.log(`Fetching employee summary for ALL employees, Period: ${period}, Start: ${startDate}, End: ${endDate}`);
+    console.log(
+      `Fetching employee summary for ALL employees, Period: ${period}, Start: ${startDate}, End: ${endDate}`
+    );
 
-        if (period === 'weekly') {
-            query = `
+    if (period === "weekly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -337,9 +390,9 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
-            params = [startDate, endDate];
-        } else if (period === 'monthly') {
-            query = `
+      params = [startDate, endDate];
+    } else if (period === "monthly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -357,9 +410,9 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
-            params = [startDate, endDate];
-        } else if (period === 'yearly') {
-            query = `
+      params = [startDate, endDate];
+    } else if (period === "yearly") {
+      query = `
                 SELECT 
                     e.id AS employee_id,
                     e.first_name,
@@ -377,56 +430,61 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
                 GROUP BY e.id, e.first_name, e.last_name, summary_period
                 ORDER BY summary_period;
             `;
-            params = [startDate, endDate];
-        } else {
-            throw new Error("Invalid period specified");
-        }
-
-        const result = await db.any(query, params);
-        console.log(result);
-
-        return result.map(entry => {
-            const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
-            const facilityTotalMinutes = parseInt(entry.facility_total_minutes, 10) || 0;
-            const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
-            const drivingTotalMinutes = parseInt(entry.driving_total_minutes, 10) || 0;
-
-            // Adjust minutes into hours for facility
-            const adjustedFacilityHours = facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
-            const remainingFacilityMinutes = facilityTotalMinutes % 60;
-
-            // Adjust minutes into hours for driving
-            const adjustedDrivingHours = drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
-            const remainingDrivingMinutes = drivingTotalMinutes % 60;
-
-            return {
-                employee_id: entry.employee_id,
-                first_name: entry.first_name,
-                last_name: entry.last_name,
-                summary_period: entry.summary_period,
-                days_worked: entry.days_worked,
-                absentee_days: entry.absentee_days,
-                facility_total_hours: {
-                    hours: adjustedFacilityHours,
-                    minutes: remainingFacilityMinutes
-                },
-                driving_total_hours: {
-                    hours: adjustedDrivingHours,
-                    minutes: remainingDrivingMinutes
-                }
-            };
-        });
-    } catch (error) {
-        console.error(`Error in getEmployeeSummaryForAll: ${error.message}`);
-        throw new Error(`Error retrieving employee summary report for all employees: ${error.message}`);
+      params = [startDate, endDate];
+    } else {
+      throw new Error("Invalid period specified");
     }
+
+    const result = await db.any(query, params);
+    console.log(result);
+
+    return result.map((entry) => {
+      const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
+      const facilityTotalMinutes =
+        parseInt(entry.facility_total_minutes, 10) || 0;
+      const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
+      const drivingTotalMinutes =
+        parseInt(entry.driving_total_minutes, 10) || 0;
+
+      // Adjust minutes into hours for facility
+      const adjustedFacilityHours =
+        facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
+      const remainingFacilityMinutes = facilityTotalMinutes % 60;
+
+      // Adjust minutes into hours for driving
+      const adjustedDrivingHours =
+        drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
+      const remainingDrivingMinutes = drivingTotalMinutes % 60;
+
+      return {
+        employee_id: entry.employee_id,
+        first_name: entry.first_name,
+        last_name: entry.last_name,
+        summary_period: entry.summary_period,
+        days_worked: entry.days_worked,
+        absentee_days: entry.absentee_days,
+        facility_total_hours: {
+          hours: adjustedFacilityHours,
+          minutes: remainingFacilityMinutes,
+        },
+        driving_total_hours: {
+          hours: adjustedDrivingHours,
+          minutes: remainingDrivingMinutes,
+        },
+      };
+    });
+  } catch (error) {
+    console.error(`Error in getEmployeeSummaryForAll: ${error.message}`);
+    throw new Error(
+      `Error retrieving employee summary report for all employees: ${error.message}`
+    );
+  }
 };
 
-
 module.exports = {
-    getTotalHoursWorkedByEmployeeByDateRange,
-    getTotalHoursWorkedByAllEmployeesByDateRange,
-    getDetailedTimecardsByEmployee,
-    getEmployeeSummaryById,
-    getEmployeeSummaryForAll
+  getTotalHoursWorkedByEmployeeByDateRange,
+  getTotalHoursWorkedByAllEmployeesByDateRange,
+  getDetailedTimecardsByEmployee,
+  getEmployeeSummaryById,
+  getEmployeeSummaryForAll,
 };

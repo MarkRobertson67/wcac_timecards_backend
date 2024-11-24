@@ -33,18 +33,19 @@ const getEmployeeById = async (id) => {
 
 
 // Create a new employee
-const createEmployee = async (first_name, last_name, email, phone, position) => {
+const createEmployee = async (firebase_uid, first_name, last_name, email, phone, position) => {
   try {
-      const newEmployee = await db.one(
-          "INSERT INTO employees (first_name, last_name, email, phone, position) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-          [first_name, last_name, email, phone, position]
-      );
-      return newEmployee;
+    const newEmployee = await db.one(
+      "INSERT INTO employees (firebase_uid, first_name, last_name, email, phone, position) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [firebase_uid, first_name, last_name, email, phone, position]
+    );
+    return newEmployee;
   } catch (error) {
     console.error("Error creating new employee:", error);
-      throw new Error(`Error creating new employee: ${error.message}`);
+    throw new Error(`Error creating new employee: ${error.message}`);
   }
 };
+
 
 // Update an employee by ID
 const updateEmployee = async (id, { first_name, last_name, email, phone, position, paychex_id, is_admin }) => {
@@ -68,7 +69,6 @@ const updateEmployee = async (id, { first_name, last_name, email, phone, positio
     throw new Error(`Error updating employee: ${error.message}`);
   }
 };
-
 
 
 // Delete an employee by ID
