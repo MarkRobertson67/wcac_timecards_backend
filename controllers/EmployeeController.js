@@ -63,13 +63,17 @@ employeesController.get(
 // POST create new employee
 employeesController.post("/", validateAndNormalizeEmail, async (request, response) => {
   try {
-    const { first_name, last_name, email, phone, position } = request.body;
-    const newEmployee = await createEmployee(first_name, last_name, email, phone, position);
+    const { firebase_uid, first_name, last_name, email, phone, position } = request.body;
+
+    // Call the createEmployee function with all required fields
+    const newEmployee = await createEmployee(firebase_uid, first_name, last_name, email, phone, position);
     response.status(201).json({ message: "Employee created successfully", data: newEmployee });
   } catch (err) {
+    console.error("Error creating employee:", err.message);
     response.status(500).json({ error: err.message });
   }
 });
+
 
 // PUT update employee
 employeesController.put(
