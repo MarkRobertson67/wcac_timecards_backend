@@ -73,3 +73,7 @@ CREATE INDEX idx_status ON timecards(status);
 CREATE INDEX idx_is_admin ON employees(is_admin);
 CREATE INDEX idx_firebase_uid ON employees(firebase_uid);
 CREATE INDEX idx_email ON employees(email);
+
+
+-- npm run db:setup  
+-- npm start
