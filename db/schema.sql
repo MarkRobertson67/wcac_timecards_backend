@@ -2,9 +2,29 @@
 -- Copyright (c) 2024 Mark Robertson
 -- See LICENSE.txt file for details.
 
+
+
 --  Drop tables if they exist
 DROP TABLE IF EXISTS timecards;
 DROP TABLE IF EXISTS employees;
+
+
+
+-- Drop ENUM types if they exist
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'status_enum') THEN
+        DROP TYPE status_enum;
+    END IF;
+END $$;
+
+DO $$ 
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_type WHERE typname = 'activity_enum') THEN
+        DROP TYPE activity_enum;
+    END IF;
+END $$;
+
 
 
 -- Create the ENUM type for status
@@ -73,3 +93,25 @@ CREATE INDEX idx_status ON timecards(status);
 CREATE INDEX idx_is_admin ON employees(is_admin);
 CREATE INDEX idx_firebase_uid ON employees(firebase_uid);
 CREATE INDEX idx_email ON employees(email);
+
+
+-- -- Function to prevent deletion of the specific admin account
+-- CREATE OR REPLACE FUNCTION protect_specific_admin()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+--   IF OLD.firebase_uid = '7Yyz3S2X2iU5drTdZE65r8bxoCB2' THEN
+--     RAISE EXCEPTION 'Cannot delete this specific admin account.';
+--   END IF;
+--   RETURN OLD;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- -- Trigger to call the function before any delete operation on the employees table
+-- CREATE TRIGGER protect_specific_admin_trigger
+-- BEFORE DELETE ON employees
+-- FOR EACH ROW
+-- EXECUTE FUNCTION protect_specific_admin();
+
+
+-- npm run db:setup  
+-- npm start
