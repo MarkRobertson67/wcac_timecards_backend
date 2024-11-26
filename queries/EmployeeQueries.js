@@ -35,11 +35,11 @@ const getEmployeeById = async (id) => {
 // Get employee by Firebase UID
 const getEmployeeByFirebaseUid = async (firebase_uid) => {
   try {
-    console.log("Fetching employee with Firebase UID:", firebase_uid); // Debug log
+    console.log("Fetching employee with Firebase UID:", firebase_uid);
     const employee = await db.oneOrNone("SELECT * FROM employees WHERE firebase_uid = $1", [firebase_uid]);
     if (!employee) {
-      console.log("No employee found with Firebase UID:", firebase_uid); // Debug log
-      throw new Error(`No employee found with Firebase UID ${firebase_uid}`);
+      console.log("No employee found with Firebase UID:", firebase_uid);
+      return null; // Return null if no employee is found
     }
     return employee;
   } catch (error) {
@@ -47,6 +47,7 @@ const getEmployeeByFirebaseUid = async (firebase_uid) => {
     throw new Error(`Unable to retrieve employee with Firebase UID ${firebase_uid}`);
   }
 };
+
 
 
 
