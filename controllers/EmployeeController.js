@@ -62,21 +62,21 @@ employeesController.get(
 );
 
 // GET employee by Firebase UID
-employeesController.get(
-  "/firebase/:firebase_uid", // Changed route to avoid collision with ID
-  async (request, response) => {
-    const { firebase_uid } = request.params;
-    try {
-      const employee = await getEmployeeByFirebaseUid(firebase_uid);
-      if (!employee) {
-        return response.status(404).json({ error: `No employee found with Firebase UID ${firebase_uid}` });
-      }
-      response.status(200).json({ data: employee });
-    } catch (err) {
-      response.status(500).json({ error: err.message });
+employeesController.get("/firebase/:firebase_uid", async (request, response) => {
+  const { firebase_uid } = request.params;
+  try {
+    const employee = await getEmployeeByFirebaseUid(firebase_uid);
+    if (!employee) {
+      console.log(`No employee found with Firebase UID: ${firebase_uid}`);
+      return response.status(404).json({ error: `No employee found with Firebase UID ${firebase_uid}` });
     }
+    response.status(200).json({ data: employee });
+  } catch (err) {
+    console.error(`Error retrieving employee with Firebase UID ${firebase_uid}:`, err.message);
+    response.status(500).json({ error: `Error retrieving employee: ${err.message}` });
   }
-);
+});
+
 
 
 
