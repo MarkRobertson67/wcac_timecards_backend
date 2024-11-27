@@ -176,6 +176,8 @@ const getDetailedTimecardsByEmployee = async (
     );
 
     const result = await db.any(query, [employeeId, startDate, endDate]);
+    console.log("Query Result:", result);
+
 
     return result.map((entry) => {
       // Parse facility total hours and minutes

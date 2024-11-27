@@ -100,6 +100,11 @@ reportsController.get(
   async (request, response) => {
     const { employeeId } = request.params;
     const { startDate, endDate } = request.query;
+
+    if (!employeeId) {
+      return res.status(400).json({ error: "Employee ID is required." });
+    }
+
     try {
       const reportData = await getDetailedTimecardsByEmployee(
         employeeId,
