@@ -166,16 +166,24 @@ reportsController.get("/all/employee-summary", async (req, res) => {
   try {
     const report = await getEmployeeSummaryForAll(period, startDate, endDate);
     if (!report || report.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No data found for the specified date range" });
+      return res.status(200).json({
+        data: [],
+        message: "No data found for the specified date range",
+        status: "success",
+      });
     }
-    return res.status(200).json({ data: report });
+    return res.status(200).json({
+      data: report,
+      message: "Employee summary retrieved successfully",
+      status: "success",
+    });
   } catch (error) {
     console.error(`Error in getEmployeeSummaryForAll: ${error.message}`);
-    return res
-      .status(500)
-      .json({ error: "Error generating summary report for all employees" });
+    return res.status(500).json({
+      data: [],
+      message: "Error generating summary report for all employees",
+      status: "error",
+    });
   }
 });
 
