@@ -178,7 +178,6 @@ const getDetailedTimecardsByEmployee = async (
     const result = await db.any(query, [employeeId, startDate, endDate]);
     console.log("Query Result:", result);
 
-
     return result.map((entry) => {
       // Parse facility total hours and minutes
       const facilityHours = parseInt(entry.facility_hours, 10) || 0;
@@ -244,47 +243,78 @@ const getEmployeeSummaryById = async (
 
     if (period === "weekly") {
       query = `
-                SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('week', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    5 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
-                AND t.work_date BETWEEN $2 AND $3
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
-            `;
-
-      params = isAllEmployees
-        ? [startDate, endDate]
-        : [employeeId, startDate, endDate];
+        SELECT 
+          e.id AS employee_id,
+          e.first_name,
+          e.last_name,
+          DATE_TRUNC('week', t.work_date) AS summary_period,
+          SUM(
+            CASE 
+              WHEN (
+                COALESCE(EXTRACT(EPOCH FROM t.facility_total_hours), 0) + 
+                COALESCE(EXTRACT(EPOCH FROM t.driving_total_hours), 0)
+              ) > 0 THEN 1 
+              ELSE 0 
+            END
+          ) AS days_worked,
+          COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+          COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+          COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+          COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
+          5 - SUM(
+            CASE 
+              WHEN (
+                COALESCE(EXTRACT(EPOCH FROM t.facility_total_hours), 0) + 
+                COALESCE(EXTRACT(EPOCH FROM t.driving_total_hours), 0)
+              ) > 0 THEN 1 
+              ELSE 0 
+            END
+          ) AS absentee_days
+        FROM employees e
+        JOIN timecards t ON e.id = t.employee_id
+        WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
+        GROUP BY e.id, e.first_name, e.last_name, summary_period
+        ORDER BY summary_period;
+      `;
+      params = [employeeId, startDate, endDate];
     } else if (period === "monthly") {
       query = `
                 SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('month', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    20 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
-                AND t.work_date BETWEEN $2 AND $3
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
+    e.id AS employee_id,
+    e.first_name,
+    e.last_name,
+    DATE_TRUNC('month', t.work_date) AS summary_period,
+    SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS days_worked,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'hours')::int, 0)), 0) AS facility_total_hours,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'minutes')::int, 0)), 0) AS facility_total_minutes,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'hours')::int, 0)), 0) AS driving_total_hours,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'minutes')::int, 0)), 0) AS driving_total_minutes,
+    20 - SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS absentee_days
+FROM employees e
+JOIN timecards t ON e.id = t.employee_id
+WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
+GROUP BY e.id, e.first_name, e.last_name, summary_period
+ORDER BY summary_period;
             `;
       params = isAllEmployees
         ? [startDate, endDate]
@@ -292,22 +322,42 @@ const getEmployeeSummaryById = async (
     } else if (period === "yearly") {
       query = `
                 SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('year', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    240 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                ${!isAllEmployees ? "WHERE e.id = $1" : ""}
-                AND t.work_date BETWEEN $2 AND $3
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
+    e.id AS employee_id,
+    e.first_name,
+    e.last_name,
+    DATE_TRUNC('year', t.work_date) AS summary_period,
+    SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS days_worked,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'hours')::int, 0)), 0) AS facility_total_hours,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'minutes')::int, 0)), 0) AS facility_total_minutes,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'hours')::int, 0)), 0) AS driving_total_hours,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'minutes')::int, 0)), 0) AS driving_total_minutes,
+    240 - SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS absentee_days
+FROM employees e
+JOIN timecards t ON e.id = t.employee_id
+WHERE e.id = $1 AND t.work_date BETWEEN $2 AND $3
+GROUP BY e.id, e.first_name, e.last_name, summary_period
+ORDER BY summary_period;
+
             `;
       params = isAllEmployees
         ? [startDate, endDate]
@@ -375,62 +425,120 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
 
     if (period === "weekly") {
       query = `
-                SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('week', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    5 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                AND t.work_date BETWEEN $1 AND $2
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
-            `;
+        SELECT 
+          e.id AS employee_id,
+          e.first_name,
+          e.last_name,
+          DATE_TRUNC('week', t.work_date) AS summary_period,
+          SUM(
+            CASE 
+              WHEN (
+                COALESCE(EXTRACT(EPOCH FROM t.facility_total_hours), 0) +
+                COALESCE(EXTRACT(EPOCH FROM t.driving_total_hours), 0)
+              ) > 0 THEN 1 
+              ELSE 0 
+            END
+          ) AS days_worked,
+          COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
+          COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
+          COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
+          COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
+          5 - SUM(
+            CASE 
+              WHEN (
+                COALESCE(EXTRACT(EPOCH FROM t.facility_total_hours), 0) +
+                COALESCE(EXTRACT(EPOCH FROM t.driving_total_hours), 0)
+              ) > 0 THEN 1 
+              ELSE 0 
+            END
+          ) AS absentee_days
+        FROM employees e
+        JOIN timecards t ON e.id = t.employee_id
+        WHERE t.work_date BETWEEN $1 AND $2
+        GROUP BY e.id, e.first_name, e.last_name, summary_period
+        ORDER BY summary_period;
+      `;
       params = [startDate, endDate];
     } else if (period === "monthly") {
       query = `
                 SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('month', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    20 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                AND t.work_date BETWEEN $1 AND $2
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
+    e.id AS employee_id,
+    e.first_name,
+    e.last_name,
+    DATE_TRUNC('month', t.work_date) AS summary_period,
+    SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS days_worked,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'hours')::int, 0)), 0) AS facility_total_hours,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'minutes')::int, 0)), 0) AS facility_total_minutes,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'hours')::int, 0)), 0) AS driving_total_hours,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'minutes')::int, 0)), 0) AS driving_total_minutes,
+    20 - SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS absentee_days
+FROM employees e
+JOIN timecards t ON e.id = t.employee_id
+WHERE t.work_date BETWEEN $1 AND $2
+GROUP BY e.id, e.first_name, e.last_name, summary_period
+ORDER BY summary_period;
+
             `;
       params = [startDate, endDate];
     } else if (period === "yearly") {
       query = `
                 SELECT 
-                    e.id AS employee_id,
-                    e.first_name,
-                    e.last_name,
-                    DATE_TRUNC('year', t.work_date) AS summary_period,
-                    COUNT(t.id) AS days_worked,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.facility_total_hours)), 0) AS facility_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.facility_total_hours)), 0) AS facility_total_minutes,
-                    COALESCE(SUM(EXTRACT(HOUR FROM t.driving_total_hours)), 0) AS driving_total_hours,
-                    COALESCE(SUM(EXTRACT(MINUTE FROM t.driving_total_hours)), 0) AS driving_total_minutes,
-                    240 - COUNT(t.id) AS absentee_days
-                FROM employees e
-                JOIN timecards t ON e.id = t.employee_id
-                AND t.work_date BETWEEN $1 AND $2
-                GROUP BY e.id, e.first_name, e.last_name, summary_period
-                ORDER BY summary_period;
+    e.id AS employee_id,
+    e.first_name,
+    e.last_name,
+    DATE_TRUNC('year', t.work_date) AS summary_period,
+    SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS days_worked,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'hours')::int, 0)), 0) AS facility_total_hours,
+    COALESCE(SUM(COALESCE((t.facility_total_hours->>'minutes')::int, 0)), 0) AS facility_total_minutes,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'hours')::int, 0)), 0) AS driving_total_hours,
+    COALESCE(SUM(COALESCE((t.driving_total_hours->>'minutes')::int, 0)), 0) AS driving_total_minutes,
+    240 - SUM(
+      CASE 
+        WHEN (
+          COALESCE((t.facility_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.facility_total_hours->>'minutes')::int, 0)*60 +
+          COALESCE((t.driving_total_hours->>'hours')::int, 0)*3600 +
+          COALESCE((t.driving_total_hours->>'minutes')::int, 0)*60
+        ) > 0 THEN 1 
+        ELSE 0 
+      END
+    ) AS absentee_days
+FROM employees e
+JOIN timecards t ON e.id = t.employee_id
+WHERE t.work_date BETWEEN $1 AND $2
+GROUP BY e.id, e.first_name, e.last_name, summary_period
+ORDER BY summary_period;
+
             `;
       params = [startDate, endDate];
     } else {
@@ -441,22 +549,48 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
     console.log(result);
 
     return result.map((entry) => {
-      const facilityTotalHours = parseInt(entry.facility_total_hours, 10) || 0;
-      const facilityTotalMinutes =
-        parseInt(entry.facility_total_minutes, 10) || 0;
-      const drivingTotalHours = parseInt(entry.driving_total_hours, 10) || 0;
-      const drivingTotalMinutes =
-        parseInt(entry.driving_total_minutes, 10) || 0;
+      // Normalize facility_total_hours
+      let facilityData;
+      if (
+        typeof entry.facility_total_hours === "object" &&
+        entry.facility_total_hours !== null
+      ) {
+        facilityData = {
+          hours: parseInt(entry.facility_total_hours.hours, 10) || 0,
+          minutes: parseInt(entry.facility_total_hours.minutes, 10) || 0,
+        };
+      } else {
+        facilityData = {
+          hours: parseInt(entry.facility_total_hours, 10) || 0,
+          minutes: parseInt(entry.facility_total_minutes, 10) || 0,
+        };
+      }
 
-      // Adjust minutes into hours for facility
+      // Normalize driving_total_hours
+      let drivingData;
+      if (
+        typeof entry.driving_total_hours === "object" &&
+        entry.driving_total_hours !== null
+      ) {
+        drivingData = {
+          hours: parseInt(entry.driving_total_hours.hours, 10) || 0,
+          minutes: parseInt(entry.driving_total_hours.minutes, 10) || 0,
+        };
+      } else {
+        drivingData = {
+          hours: parseInt(entry.driving_total_hours, 10) || 0,
+          minutes: parseInt(entry.driving_total_minutes, 10) || 0,
+        };
+      }
+
+      // Adjust minutes into hours
       const adjustedFacilityHours =
-        facilityTotalHours + Math.floor(facilityTotalMinutes / 60);
-      const remainingFacilityMinutes = facilityTotalMinutes % 60;
+        facilityData.hours + Math.floor(facilityData.minutes / 60);
+      const remainingFacilityMinutes = facilityData.minutes % 60;
 
-      // Adjust minutes into hours for driving
       const adjustedDrivingHours =
-        drivingTotalHours + Math.floor(drivingTotalMinutes / 60);
-      const remainingDrivingMinutes = drivingTotalMinutes % 60;
+        drivingData.hours + Math.floor(drivingData.minutes / 60);
+      const remainingDrivingMinutes = drivingData.minutes % 60;
 
       return {
         employee_id: entry.employee_id,
@@ -476,9 +610,9 @@ const getEmployeeSummaryForAll = async (period, startDate, endDate) => {
       };
     });
   } catch (error) {
-    console.error(`Error in getEmployeeSummaryForAll: ${error.message}`);
+    console.error(`Error in getEmployeeSummaryReport: ${error.message}`);
     throw new Error(
-      `Error retrieving employee summary report for all employees: ${error.message}`
+      `Error retrieving employee summary report: ${error.message}`
     );
   }
 };
