@@ -1,4 +1,7 @@
 
+![License](https://img.shields.io/badge/license-Proprietary-blue)
+![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
+
 # License
 
 This project is licensed under the Proprietary Software License. See the [LICENSE.txt](./LICENSE.txt) file for details.
