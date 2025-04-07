@@ -2,11 +2,7 @@
 ![License](https://img.shields.io/badge/license-Proprietary-blue)
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
 
-# License
 
-This project is licensed under the Proprietary Software License. See the [LICENSE.txt](./LICENSE.txt) file for details.
-
-For licensing inquiries, please contact Mark Robertson at [markrobertson67@gmail.com](mailto:markrobertson67@gmail.com).
 
 # Timecard Application Backend
 
@@ -29,6 +25,8 @@ The goal is to create a scalable and efficient backend solution that integrates 
   - [Initialize the Database](#initialize-the-database)
   - [Start the Server](#start-the-server)
 - [API Endpoints](#api-endpoints)
+- [License](#license)
+- [Contact](#contact)
 
 ## Prerequisites
 
@@ -168,6 +166,16 @@ Example Response:
   ]
 }
 ```
+
+## License
+
+This project is licensed under the [Proprietary Software License](./LICENSE.txt).  
+For licensing inquiries, please contact [Mark Robertson](mailto:markrobertson67@gmail.com).
+
+
+## Contact
+
+For any questions, support, or feedback, please contact Mark Robertson at [Mark Robertson](mailto:markrobertson67@gmail.com).
 
 ### Notes
 
