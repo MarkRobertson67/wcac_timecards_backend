@@ -2,13 +2,9 @@
 ![License](https://img.shields.io/badge/license-Proprietary-blue)
 ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
 
-# License
 
-This project is licensed under the Proprietary Software License. See the [LICENSE.txt](./LICENSE.txt) file for details.
 
-For licensing inquiries, please contact Mark Robertson at [markrobertson67@gmail.com](mailto:markrobertson67@gmail.com).
-
-# wcac_Timecard Application Backend
+# Timecard Application Backend
 
 ## Brief Project Description
 
@@ -29,6 +25,8 @@ The goal is to create a scalable and efficient backend solution that integrates 
   - [Initialize the Database](#initialize-the-database)
   - [Start the Server](#start-the-server)
 - [API Endpoints](#api-endpoints)
+- [License](#license)
+- [Contact](#contact)
 
 ## Prerequisites
 
@@ -48,19 +46,24 @@ Clone the repository to your local machine:
 
 Navigate into the project directory and install the required dependencies using npm.
 
-npm install
+```
+     npm install
+```
 
 ## Set Up Environment Variables
 
 Create a .env file in the root directory of your project to store environment variables.
+**Note:** Ensure that your `.env` file is added to your `.gitignore` file to keep your environment variables and sensitive credentials secure.
+
 
 Example .env file:
 
-PORT=2020
-DB_URL=<insert_your_neon_tech_db_url_here>
+```js
+     PORT=2020
+     DB_URL=<insert_your_neon_tech_db_url_here>
 
-Replace <insert_your_neon_tech_db_url_here> with your Neon.tech database connection URL obtained during the signup process.
-
+     //Replace <insert_your_neon_tech_db_url_here> with your Neon.tech database connection URL obtained during the signup process.
+```
 
 ## Database Configuration
 
@@ -71,7 +74,9 @@ Ensure that your Neon.tech PostgreSQL database is running and accessible.
 
 Use the following command to set up the database schema and seed data:
 
-npm run db:setup
+```
+     npm run db:setup
+```
 
 This command executes the db:setup script defined in your package.json, which runs the schema and seed SQL files on your Neon.tech PostgreSQL database using the DB_URL environment variable.
 
@@ -79,7 +84,9 @@ This command executes the db:setup script defined in your package.json, which ru
 ## Start the Server
 Start the backend server by running the following command:
 
-npm start
+```
+     npm start
+```
 
 The server should now be running locally on the specified port (e.g., `http://localhost:2020`).
 
@@ -97,8 +104,9 @@ PUT /timecards/:timecardId: Update an existing timecard entry.
 
 Example Request:
 
-`http://localhost:2020/employeess`
-
+```
+     `http://localhost:2020/employeess`
+```
 
 Example Response:
 
@@ -158,3 +166,32 @@ Example Response:
   ]
 }
 ```
+
+## License
+
+This project is licensed under the [Proprietary Software License](./LICENSE.txt).  
+For licensing inquiries, please contact [Mark Robertson](mailto:markrobertson67@gmail.com).
+
+
+## Contact
+
+For any questions, support, or feedback, please contact Mark Robertson at [Mark Robertson](mailto:markrobertson67@gmail.com).
+
+### Notes
+
+- **Generic Information:**  
+  Replace placeholders like `yourusername/your-backend-repo` and `<insert_your_neon_tech_db_url_here>` with your actual repository name and database URL.
+
+- **License and Contact:**  
+  Update the license details and contact information as needed.
+
+This backend README should align well with your frontend README in terms of structure and style, making it easier for users to set up and understand both parts of your application.
+
+
+
+
+
+[![Render](https://img.shields.io/badge/Render-Hosted-blue?style=flat-square&logo=render)](https://render.com/)
+[![Express](https://img.shields.io/badge/Express-4.x-green?style=flat-square&logo=express)](https://expressjs.com/)
+[![Git](https://img.shields.io/badge/Git-2.35.1-orange?style=flat-square&logo=git&logoColor=white)](https://git-scm.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-v18.16.0-green?style=flat-square&logo=node.js&logoColor=white)](https://nodejs.org/)
